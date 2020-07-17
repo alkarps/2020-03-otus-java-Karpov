@@ -9,6 +9,10 @@ email: alserkarpov@gmail.com<br/>
 ###1. Gradle
 Домашняя работа по знакомству с gradle находится в ./hw01-gradle. [Описание домашней работы](hw01-gradle/README.md)
 
+###2. Collections
+Домашняя работа по знакомству с gradle находится в ./hw02-collections. [Описание домашней работы](hw02-collections/README.md)
+
+
 License
 ----
 
