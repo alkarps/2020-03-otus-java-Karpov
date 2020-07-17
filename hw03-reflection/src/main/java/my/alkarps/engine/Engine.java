@@ -10,6 +10,7 @@ public class Engine {
     public static void run(Class<?> testClass) {
         ClassDetails classDetails = Analyzer.analyze(testClass);
         Statistics statistics = executeTest(classDetails);
+        System.out.println(statistics);
     }
 
     private static Statistics executeTest(ClassDetails classDetails) {
@@ -28,7 +29,6 @@ public class Engine {
     }
 
     private static Statistics.TestMethodResult testMethod(Object instance, ClassDetails.MethodDetails methodDetails) {
-        System.out.println(methodDetails.getMethod().getName());
         Statistics.TestMethodResult.TestMethodResultBuilder methodResult = Statistics.TestMethodResult.builder()
                 .methodName(methodDetails.getMethod().getName());
         Instant startTest = Instant.now();
@@ -40,7 +40,6 @@ public class Engine {
             methodResult.methodTestTime(Duration.between(startTest, Instant.now()))
                     .success(true);
         } catch (Exception ex) {
-            System.err.println(ex);
             methodResult.methodTestTime(Duration.between(startTest, Instant.now()))
                     .success(false)
                     .throwable(ex);

@@ -2,6 +2,9 @@ package my.alkarps.engine;
 
 import my.alkarps.engine.helper.notvalid.*;
 import my.alkarps.engine.helper.valid.TestClassWithPublicConstructorAndTestMethods;
+import my.alkarps.engine.helper.valid.TestClassWithTestAndAfterEachMethods;
+import my.alkarps.engine.helper.valid.TestClassWithTestAndBeforeEachAndAfterEachMethods;
+import my.alkarps.engine.helper.valid.TestClassWithTestAndBeforeEachMethods;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -78,5 +81,23 @@ class EngineTest {
     void run_WhenClassHasOnlyBeforeAndAfterEachMethods() {
         assertThatCode(() -> Engine.run(TestClassWithOnlyAfterAndBeforeEachMethods.class))
                 .isInstanceOf(NotValidClassException.class);
+    }
+
+    @Test
+    void run_WhenClassHasTestAndBeforeEachMethods() {
+        assertThatCode(() -> Engine.run(TestClassWithTestAndBeforeEachMethods.class))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void run_WhenClassHasTestAndAfterEachMethods() {
+        assertThatCode(() -> Engine.run(TestClassWithTestAndAfterEachMethods.class))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void run_WhenClassHasTestAndBeforeEachAndAfterEachMethods() {
+        assertThatCode(() -> Engine.run(TestClassWithTestAndBeforeEachAndAfterEachMethods.class))
+                .doesNotThrowAnyException();
     }
 }
