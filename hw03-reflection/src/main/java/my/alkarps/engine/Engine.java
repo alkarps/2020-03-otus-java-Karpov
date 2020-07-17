@@ -28,16 +28,19 @@ public class Engine {
     }
 
     private static Statistics.TestMethodResult testMethod(Object instance, ClassDetails.MethodDetails methodDetails) {
+        System.out.println(methodDetails.getMethod().getName());
         Statistics.TestMethodResult.TestMethodResultBuilder methodResult = Statistics.TestMethodResult.builder()
                 .methodName(methodDetails.getMethod().getName());
         Instant startTest = Instant.now();
         try {
             invokeSupportMethods(instance, methodDetails.getBeforeEachMethods());
+            methodDetails.getMethod().setAccessible(true);
             methodDetails.getMethod().invoke(instance);
             invokeSupportMethods(instance, methodDetails.getAfterEachMethods());
             methodResult.methodTestTime(Duration.between(startTest, Instant.now()))
                     .success(true);
         } catch (Exception ex) {
+            System.err.println(ex);
             methodResult.methodTestTime(Duration.between(startTest, Instant.now()))
                     .success(false)
                     .throwable(ex);
@@ -47,6 +50,7 @@ public class Engine {
 
     private static void invokeSupportMethods(Object instance, List<Method> suppertMethods) throws IllegalAccessException, InvocationTargetException {
         for (Method method : suppertMethods) {
+            method.setAccessible(true);
             method.invoke(instance);
         }
     }
