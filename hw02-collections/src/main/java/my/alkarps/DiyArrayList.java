@@ -71,9 +71,7 @@ public class DiyArrayList<T> implements List<T> {
 
     @Override
     public boolean add(T t) {
-        if (size == elements.length) {
-            elements = Arrays.copyOf(elements, elements.length + 5);
-        }
+        grow();
         elements[size] = t;
         size++;
         return true;
@@ -145,9 +143,7 @@ public class DiyArrayList<T> implements List<T> {
         if (index == size) {
             add(element);
         } else {
-            if (size == elements.length) {
-                elements = Arrays.copyOf(elements, elements.length + 5);
-            }
+            grow();
             System.arraycopy(elements, index + 1, elements, index, elements.length - index);
             elements[index] = element;
             size++;
@@ -191,6 +187,12 @@ public class DiyArrayList<T> implements List<T> {
     @Override
     public List<T> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("Операция не поддержана");
+    }
+
+    private void grow() {
+        if (size == elements.length) {
+            elements = Arrays.copyOf(elements, elements.length + 5);
+        }
     }
 
     private class DiyIterator implements Iterator<T> {
