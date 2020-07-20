@@ -9,6 +9,9 @@ email: alserkarpov@gmail.com<br/>
 ###1. Gradle
 Домашняя работа по знакомству с gradle находится в ./hw01-gradle. [Описание домашней работы](hw01-gradle/README.md)
 
+###1. GC
+Домашняя работа по знакомству с GC находится в ./hw04-GC. [Описание домашней работы](hw04-GC/README.md)
+
 License
 ----
 
