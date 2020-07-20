@@ -1,16 +1,12 @@
 package my.alkarps;
 
-import com.google.common.collect.ContiguousSet;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.google.common.collect.DiscreteDomain.integers;
-import static com.google.common.collect.Range.closed;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -97,10 +93,12 @@ public class CollectionsTest {
         }
     }
 
-    private ArrayList<Integer> getIntegerValue(int sourceSize) {
+    private List<Integer> getIntegerValue(int sourceSize) {
         if (sourceSize < 1) {
             sourceSize = 1;
         }
-        return new ArrayList<>(ContiguousSet.create(closed(1, sourceSize), integers()));
+        return IntStream.rangeClosed(1, sourceSize)
+                .boxed()
+                .collect(Collectors.toList());
     }
 }
