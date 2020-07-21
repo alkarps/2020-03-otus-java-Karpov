@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author alkarps
@@ -16,13 +18,30 @@ import java.util.UUID;
  */
 public class ListOOM {
 
+    private final int addCount, removeCount;
+
+    public ListOOM() {
+        this.addCount = 10;
+        this.removeCount = 2;
+    }
+
+    public ListOOM(int addCount, int removeCount) {
+        this.addCount = addCount;
+        this.removeCount = removeCount;
+    }
+
     public void generateOOM() {
         List<Object> objects = new ArrayList<>();
         try {
-            while (true) {
-                addElements(objects);
-                removeElements(objects);
-                System.out.println(String.format("Current size %d.", objects.size()));
+            boolean runnable = true;
+            while (runnable) {
+                try {
+                    addElements(objects);
+                    removeElements(objects);
+                    System.out.println(String.format("Current size %d.", objects.size()));
+                } catch (RuntimeException ex) {
+                    runnable = false;
+                }
             }
         } catch (OutOfMemoryError error) {
             System.out.println(String.format("We crash with size %d.", objects.size()));
@@ -31,9 +50,8 @@ public class ListOOM {
     }
 
     private void addElements(List<Object> objects) {
-        int count = 10;
-        System.out.println(String.format("Size %d. Count for add %d", objects.size(), count));
-        for (int i = 0; i < count; i++) {
+        System.out.println(String.format("Size %d. Count for add %d", objects.size(), addCount));
+        for (int i = 0; i < addCount; i++) {
             objects.add(getNextRandomString());
         }
     }
@@ -43,7 +61,7 @@ public class ListOOM {
     }
 
     private void removeElements(List<Object> objects) {
-        int count = 2;
+        int count = removeCount;
         System.out.println(String.format("Size %d. Count for remove %d", objects.size(), count));
         Iterator<Object> itr = objects.iterator();
         while (count > 0 && itr.hasNext()) {
