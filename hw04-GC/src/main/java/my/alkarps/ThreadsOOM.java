@@ -10,6 +10,9 @@ import static java.lang.Thread.sleep;
  * create date 20.07.2020 16:36
  */
 public class ThreadsOOM {
+    public static void main(String[] args) {
+        new ThreadsOOM().generateOOM();
+    }
 
     private final int stopAfterNSecond = 4 * 60;
 

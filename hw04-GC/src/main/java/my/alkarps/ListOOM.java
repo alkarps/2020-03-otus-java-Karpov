@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author alkarps
@@ -17,6 +15,9 @@ import java.util.logging.Logger;
  * </p>
  */
 public class ListOOM {
+    public static void main(String[] args) {
+        new ListOOM().generateOOM();
+    }
 
     private final int addCount, removeCount;
 
