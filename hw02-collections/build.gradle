@@ -14,7 +14,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.set('hw02-collections-uber')
+    archiveBaseName.set(project.name + '-uber')
     archiveClassifier.set('')
     manifest {
         attributes 'Main-Class': 'my.alkarps.Main'
