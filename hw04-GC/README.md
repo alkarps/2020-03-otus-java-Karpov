@@ -62,7 +62,7 @@ java -Xms200m -Xmx200m -verbose:gc -Xlog:gc*:file=./logs/gc_pid_%p.log -XX:+Heap
 
 <h3>Многопоточный режим</h3>
 
-В качестве подопытной программы использовался класс `ThreadsOOM`. Основан он на параллельном запуске класса `ListOOM` из однопоточного режима. Работа программы завершается, когда поток `main` падает с OOM
+В качестве подопытной программы использовался класс `ThreadsOOM`. Основан он на параллельном запуске класса `ListOOM` из однопоточного режима.
 Используемые параметры:
 ```shell script
 java -Xms200m -Xmx200m -verbose:gc -Xlog:gc*:file=./logs/gc_pid_%p.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./logs/dump
