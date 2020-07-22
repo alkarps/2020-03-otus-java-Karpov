@@ -9,9 +9,8 @@ import java.util.UUID;
  * @author alkarps
  * create date 20.07.2020 12:27
  * <p>
- * G1 (Java heap space): ~2451112 - 261.948s; ~2451864 - 258.692s; ~2451800 - 312.890s
- * Serial (Java heap space): 2384338 - 281.276s; 2384330 - 273.419s; 2384370 - 325.922s
- * Parallel (GC overhead limit exceeded): 2094891 - 242.314s ; 2113442 - 206.649s; 2191163 - 226.154s
+ * Параметры запуска:
+ * -Xms200m -Xmx200m -verbose:gc -Xlog:gc*:file=./logs/gc_pid_%p.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./logs/dump
  * </p>
  */
 public class ListOOM {

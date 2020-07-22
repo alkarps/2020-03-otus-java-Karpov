@@ -8,6 +8,10 @@ import static java.lang.Thread.sleep;
 /**
  * @author alkarps
  * create date 20.07.2020 16:36
+ * <p>
+ * Параметры запуска:
+ * -Xms200m -Xmx200m -verbose:gc -Xlog:gc*:file=./logs/gc_pid_%p.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./logs/dump
+ * </p>
  */
 public class ThreadsOOM {
     public static void main(String[] args) {
