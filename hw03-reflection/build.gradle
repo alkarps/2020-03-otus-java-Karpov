@@ -20,7 +20,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.set('hw03-reflection-uber')
+    archiveBaseName.set(project.name + '-uber')
     archiveClassifier.set('')
     manifest {
         attributes 'Main-Class': 'my.alkarps.DyiJUnit'
