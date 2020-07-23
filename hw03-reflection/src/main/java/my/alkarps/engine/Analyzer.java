@@ -11,22 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 /**
  * @author alkarps
  * create date 13.07.2020 10:57
  */
 public class Analyzer {
-
-    public static ClassDetails analyze(String testClass) {
-        try {
-            throwExceptionIfNotValid(isNullOrEmpty(testClass), "Класс не указан.");
-            return analyze(Class.forName(testClass));
-        } catch (ClassNotFoundException e) {
-            throw new NotValidClassException(e);
-        }
-    }
 
     public static ClassDetails analyze(Class<?> testClass) {
         throwExceptionIfNotValid(testClass == null, "Класс не указан.");
@@ -65,7 +54,7 @@ public class Analyzer {
         List<Method> beforeEach = findMethodsWithAnnotation(testClass, BeforeEach.class).collect(Collectors.toList());
         throwExceptionIfNotValid(hasStaticMethod(beforeEach), "Метод, аннотированный BeforeEach, должен быть без модификатора static");
         List<Method> afterEach = findMethodsWithAnnotation(testClass, AfterEach.class).collect(Collectors.toList());
-        throwExceptionIfNotValid(hasStaticMethod(beforeEach), "Метод, аннотированный AfterEach, должен быть без модификатора static");
+        throwExceptionIfNotValid(hasStaticMethod(afterEach), "Метод, аннотированный AfterEach, должен быть без модификатора static");
         return findMethodsWithAnnotation(testClass, Test.class)
                 .filter(method -> !Modifier.isPrivate(method.getModifiers()))
                 .map(method -> ClassDetails.MethodDetails.builder()

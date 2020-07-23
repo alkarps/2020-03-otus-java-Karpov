@@ -1,6 +1,9 @@
 package my.alkarps.engine;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author alkarps
@@ -9,26 +12,16 @@ import org.junit.jupiter.api.BeforeEach;
 public class Test {
     @BeforeEach
     private void privateSetUp() {
-        throw new RuntimeException();
+        fail("BeforeEach");
     }
 
     @org.junit.jupiter.api.Test
     public void test() {
-        System.out.println("test");
+        fail("test");
     }
 
-    @org.junit.jupiter.api.Test
+    @AfterEach
     private void test1() {
-        System.out.println("test1");
-    }
-
-    @org.junit.jupiter.api.Test
-    protected void test2() {
-        System.out.println("test2");
-    }
-
-    @org.junit.jupiter.api.Test
-    void test3() {
-        System.out.println("test3");
+        fail("AfterEach");
     }
 }
