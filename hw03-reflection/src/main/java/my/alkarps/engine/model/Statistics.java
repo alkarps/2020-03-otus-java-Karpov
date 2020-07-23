@@ -1,4 +1,4 @@
-package my.alkarps.engine;
+package my.alkarps.engine.model;
 
 import lombok.Builder;
 import lombok.Singular;
@@ -45,31 +45,17 @@ public class Statistics {
     }
 
     private static String toString(Duration duration) {
-        long s = duration.toNanos();
         StringBuilder sb = new StringBuilder();
-        long hours = s / 3600_000_000_000L;
-        boolean print = false;
-        if (print = hours > 0) {
-            sb.append(hours).append(" ч.");
+        if (duration.toHoursPart() > 0) {
+            sb.append(duration.toHoursPart()).append(" ч.");
         }
-        long minutes = (s % 3600_000_000_000L) / 60_000_000_000L;
-        if (print = print || minutes > 0) {
-            sb.append(minutes).append(" м.");
+        if (duration.toMinutesPart() > 0) {
+            sb.append(duration.toMinutesPart()).append(" м.");
         }
-        long seconds = (s % 60_000_000_000L) / 1000_000_000L;
-        if (print = print || seconds > 0) {
-            sb.append(seconds).append(" с.");
+        if (duration.toSecondsPart() > 0) {
+            sb.append(duration.toSecondsPart()).append(" с.");
         }
-        long millis = (s % 1000_000_000L) / 1000_000L;
-        if (print = print || millis > 0) {
-            sb.append(millis).append(" мс.");
-        }
-        long micros = (s % 1000_000L) / 1000L;
-        if (print || micros > 0) {
-            sb.append(micros).append(" мкс.");
-        }
-        long nano = s % 1000L;
-        sb.append(nano).append(" н.");
-        return sb.toString();
+        int ms = Math.max(duration.toMillisPart(), 1);
+        return sb.append(ms).append(" мс.").toString();
     }
 }

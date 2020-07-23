@@ -1,5 +1,8 @@
 package my.alkarps.engine;
 
+import my.alkarps.engine.model.ClassDetails;
+import my.alkarps.engine.model.Statistics;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Duration;

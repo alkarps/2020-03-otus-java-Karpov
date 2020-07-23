@@ -1,4 +1,4 @@
-package my.alkarps.engine;
+package my.alkarps.engine.model;
 
 import lombok.Builder;
 import lombok.Getter;

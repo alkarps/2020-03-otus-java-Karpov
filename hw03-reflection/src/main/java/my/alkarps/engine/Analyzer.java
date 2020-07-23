@@ -1,6 +1,7 @@
 package my.alkarps.engine;
 
 import my.alkarps.annotation.*;
+import my.alkarps.engine.model.ClassDetails;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
