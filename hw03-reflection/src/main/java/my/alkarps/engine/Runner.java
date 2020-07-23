@@ -1,6 +1,7 @@
 package my.alkarps.engine;
 
-import my.alkarps.engine.exception.NotValidClassException;
+import my.alkarps.engine.exception.execute.CreateTestInstanceClassException;
+import my.alkarps.engine.exception.execute.InvokeSupportMethodException;
 import my.alkarps.engine.model.ClassDetails;
 import my.alkarps.engine.model.Statistics;
 
@@ -19,15 +20,23 @@ public class Runner {
         Statistics.StatisticsBuilder statistics = Statistics.builder()
                 .classTestName(classDetails.getClassName());
         Instant startClassTest = Instant.now();
-        Object instance = newInstance(classDetails);
-//        invokeSupportMethods(instance, classDetails.getBeforeAllMethods());
-        for (ClassDetails.MethodDetails method : classDetails.getTestMethods()) {
-            statistics.testMethodResult(testMethod(instance, method));
+        Object instance = null;
+        try {
+            instance = newInstance(classDetails);
+            invokeSupportMethods(instance, classDetails.getBeforeAllMethods());
+            for (ClassDetails.MethodDetails method : classDetails.getTestMethods()) {
+                statistics.testMethodResult(testMethod(instance, method));
+            }
+            invokeSupportMethods(instance, classDetails.getAfterAllMethods());
+            return statistics
+                    .classTestTime(Duration.between(startClassTest, Instant.now()))
+                    .build();
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            if (instance != null) {
+                throw new InvokeSupportMethodException(e);
+            }
+            throw new CreateTestInstanceClassException(e);
         }
-//        invokeSupportMethods(instance, classDetails.getAfterAllMethods());
-        return statistics
-                .classTestTime(Duration.between(startClassTest, Instant.now()))
-                .build();
     }
 
     private Statistics.TestMethodResult testMethod(Object instance, ClassDetails.MethodDetails methodDetails) {
@@ -56,11 +65,7 @@ public class Runner {
         }
     }
 
-    private Object newInstance(ClassDetails classDetails) {
-        try {
-            return classDetails.getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new NotValidClassException(e);
-        }
+    private Object newInstance(ClassDetails classDetails) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        return classDetails.getConstructor().newInstance();
     }
 }

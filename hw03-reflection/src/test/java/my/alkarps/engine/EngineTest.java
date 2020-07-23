@@ -1,13 +1,21 @@
 package my.alkarps.engine;
 
-import my.alkarps.engine.exception.ClassNotFoundException;
-import my.alkarps.engine.exception.ClassWithoutTestMethodException;
-import my.alkarps.engine.exception.MethodHasStaticModifierException;
-import my.alkarps.engine.exception.NotValidConstructorException;
+import my.alkarps.engine.exception.execute.CreateTestInstanceClassException;
+import my.alkarps.engine.exception.execute.InvokeSupportMethodException;
+import my.alkarps.engine.exception.validate.ClassNotFoundException;
+import my.alkarps.engine.exception.validate.*;
+import my.alkarps.engine.helper.ResultCaptor;
 import my.alkarps.engine.helper.notvalid.*;
 import my.alkarps.engine.helper.valid.*;
+import my.alkarps.engine.model.ClassDetails;
+import my.alkarps.engine.model.Statistics;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,9 +44,9 @@ class EngineTest {
         verify(runner, never()).run(any());
     }
 
-    @Test
-    void run_WhenClassEmptyWithPrivateConstructor() {
-        Class<?> testClass = EmptyTestClassWithPrivateConstructor.class;
+    @ParameterizedTest
+    @MethodSource("notValidConstructor")
+    void run_WhenClassEmptyWithPrivateConstructor(Class<?> testClass) {
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(NotValidConstructorException.class)
                 .hasMessage("Класс не валиден: Конструктор класса должен быть public и быть без аргументов");
@@ -46,44 +54,10 @@ class EngineTest {
         verify(runner, never()).run(any());
     }
 
-    @Test
-    void run_WhenClassEmptyWithPrivateConstructorWithArgs() {
-        Class<?> testClass = EmptyTestClassWithPrivateConstructorWithArgs.class;
-        assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(NotValidConstructorException.class)
-                .hasMessage("Класс не валиден: Конструктор класса должен быть public и быть без аргументов");
-        verifyAnalizer(testClass);
-        verify(runner, never()).run(any());
-    }
-
-    @Test
-    void run_WhenClassEmptyWithPublicConstructorWithArgs() {
-        Class<?> testClass = EmptyTestClassWithPublicConstructorWithArgs.class;
-        assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(NotValidConstructorException.class)
-                .hasMessage("Класс не валиден: Конструктор класса должен быть public и быть без аргументов");
-        verifyAnalizer(testClass);
-        verify(runner, never()).run(any());
-    }
-
-    @Test
-    void run_WhenClassEmptyWithPublicConstructor() {
-        Class<?> testClass = EmptyTestClassWithPublicConstructor.class;
-        assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(ClassWithoutTestMethodException.class)
-                .hasMessage("Класс не валиден: Отсутствуют методы для тестирования.");
-        verifyAnalizer(testClass);
-        verify(runner, never()).run(any());
-    }
-
-    @Test
-    void run_WhenClassEmptyWithPublicConstructorButNotWithTestMethods() {
-        Class<?> testClass = TestClassWithPublicConstructorButNotTestMethods.class;
-        assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(ClassWithoutTestMethodException.class)
-                .hasMessage("Класс не валиден: Отсутствуют методы для тестирования.");
-        verifyAnalizer(testClass);
-        verify(runner, never()).run(any());
+    static Stream<Class<?>> notValidConstructor() {
+        return Stream.of(EmptyTestClassWithPublicConstructorWithArgs.class,
+                EmptyTestClassWithPrivateConstructorWithArgs.class,
+                EmptyTestClassWithPrivateConstructor.class);
     }
 
     @Test
@@ -92,16 +66,6 @@ class EngineTest {
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(MethodHasStaticModifierException.class)
                 .hasMessage("Класс не валиден: Метод, аннотированный BeforeEach, должен быть без модификатора static");
-        verifyAnalizer(testClass);
-        verify(runner, never()).run(any());
-    }
-
-    @Test
-    void run_WhenClassHasOnlyBeforeEachMethods() {
-        Class<?> testClass = TestClassWithOnlyBeforeEachMethods.class;
-        assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(ClassWithoutTestMethodException.class)
-                .hasMessage("Класс не валиден: Отсутствуют методы для тестирования.");
         verifyAnalizer(testClass);
         verify(runner, never()).run(any());
     }
@@ -117,8 +81,29 @@ class EngineTest {
     }
 
     @Test
-    void run_WhenClassHasOnlyAfterEachMethods() {
-        Class<?> testClass = TestClassWithOnlyAfterEachMethods.class;
+    void run_WhenClassValidAndHasNotValidBeforeAllMethods() {
+        Class<?> testClass = TestClassWithNotValidBeforeAllMethods.class;
+        assertThatCode(() -> engine.run(testClass))
+                .isInstanceOf(MethodNotHasStaticModifierException.class)
+                .hasMessage("Класс не валиден: Метод, аннотированный BeforeAll, должен быть только с модификатором static");
+        verifyAnalizer(testClass);
+        verify(runner, never()).run(any());
+    }
+
+    @Test
+    void run_WhenClassValidAndHasNotValidAfterAllMethods() {
+        Class<?> testClass = TestClassWithNotValidAfterAllMethods.class;
+        assertThatCode(() -> engine.run(testClass))
+                .isInstanceOf(MethodNotHasStaticModifierException.class)
+                .hasMessage("Класс не валиден: Метод, аннотированный AfterAll, должен быть только с модификатором static");
+        verifyAnalizer(testClass);
+        verify(runner, never()).run(any());
+    }
+
+    @ParameterizedTest
+    @MethodSource("withoutMethods")
+    void run_WhenClassWithoutTestMethods() {
+        Class<?> testClass = EmptyTestClassWithPublicConstructor.class;
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(ClassWithoutTestMethodException.class)
                 .hasMessage("Класс не валиден: Отсутствуют методы для тестирования.");
@@ -126,27 +111,49 @@ class EngineTest {
         verify(runner, never()).run(any());
     }
 
-    @Test
-    void run_WhenClassHasOnlyBeforeAndAfterEachMethods() {
-        Class<?> testClass = TestClassWithOnlyAfterAndBeforeEachMethods.class;
-        assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(ClassWithoutTestMethodException.class)
-                .hasMessage("Класс не валиден: Отсутствуют методы для тестирования.");
-        verifyAnalizer(testClass);
-        verify(runner, never()).run(any());
+    static Stream<Class<?>> withoutMethods() {
+        return Stream.of(EmptyTestClassWithPublicConstructor.class,
+                TestClassWithPublicConstructorButNotTestMethods.class,
+                TestClassWithOnlyBeforeEachMethods.class,
+                TestClassWithOnlyAfterEachMethods.class,
+                TestClassWithOnlyAfterAndBeforeEachMethods.class,
+                TestClassWithOnlyAfterAndBeforeAllMethods.class,
+                TestClassWithOnlyAfterAllMethods.class,
+                TestClassWithOnlyBeforeAllMethods.class);
     }
 
     @Test
     void run_WhenClassConstructorFail() {
         Class<?> testClass = TestClassWithFailConstructor.class;
-        testWithoutAnyExceptions(testClass);
+        assertThatCode(() -> engine.run(testClass))
+                .isInstanceOf(CreateTestInstanceClassException.class)
+                .hasMessage("Ошибка инициализации тестового класса");
         verifyAnalizer(testClass);
+    }
+
+    @ParameterizedTest
+    @MethodSource("supportMethodsFail")
+    void run_WhenSupportMethodIsFail(Class<?> testClass) {
+        assertThatCode(() -> engine.run(testClass))
+                .isInstanceOf(InvokeSupportMethodException.class)
+                .hasMessage("Ошибка при выполнении статических вспомогательных методов");
+        verifyAnalizer(testClass);
+    }
+
+    static Stream<Class<?>> supportMethodsFail() {
+        return Stream.of(TestClassFailWithAfterAllMethod.class, TestClassFailWithBeforeAllMethod.class);
     }
 
     @Test
     void run_WhenClassWithPublicConstructorAndTestMethods() {
         Class<?> testClass = TestClassWithPublicConstructorAndTestMethods.class;
+        ResultCaptor<ClassDetails> classDetailsCaptor = new ResultCaptor<>();
+        doAnswer(classDetailsCaptor).when(analyzer).analyze(testClass);
+        ResultCaptor<Statistics> statisticsCaptor = new ResultCaptor<>();
+        doAnswer(statisticsCaptor).when(runner).run(any());
         testWithoutAnyExceptions(testClass);
+        Assertions.assertNotNull(classDetailsCaptor.getResult());
+        Assertions.assertNotNull(statisticsCaptor.getResult());
         verifyAnalizer(testClass);
     }
 
