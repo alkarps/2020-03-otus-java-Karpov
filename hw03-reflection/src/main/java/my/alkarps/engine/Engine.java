@@ -10,13 +10,24 @@ import java.time.Instant;
 import java.util.List;
 
 public class Engine {
-    public static void run(Class<?> testClass) {
-        ClassDetails classDetails = Analyzer.analyze(testClass);
+
+    private final Analyzer analyzer;
+
+    public Engine() {
+        this.analyzer = new Analyzer();
+    }
+
+    public Engine(Analyzer analyzer) {
+        this.analyzer = analyzer;
+    }
+
+    public void run(Class<?> testClass) {
+        ClassDetails classDetails = analyzer.analyze(testClass);
         Statistics statistics = executeTest(classDetails);
         System.out.println(statistics);
     }
 
-    private static Statistics executeTest(ClassDetails classDetails) {
+    private Statistics executeTest(ClassDetails classDetails) {
         Statistics.StatisticsBuilder statistics = Statistics.builder()
                 .classTestName(classDetails.getClassName());
         Instant startClassTest = Instant.now();
@@ -31,7 +42,7 @@ public class Engine {
                 .build();
     }
 
-    private static Statistics.TestMethodResult testMethod(Object instance, ClassDetails.MethodDetails methodDetails) {
+    private Statistics.TestMethodResult testMethod(Object instance, ClassDetails.MethodDetails methodDetails) {
         Statistics.TestMethodResult.TestMethodResultBuilder methodResult = Statistics.TestMethodResult.builder()
                 .methodName(methodDetails.getMethod().getName());
         Instant startTest = Instant.now();
@@ -50,14 +61,14 @@ public class Engine {
         return methodResult.build();
     }
 
-    private static void invokeSupportMethods(Object instance, List<Method> suppertMethods) throws IllegalAccessException, InvocationTargetException {
+    private void invokeSupportMethods(Object instance, List<Method> suppertMethods) throws IllegalAccessException, InvocationTargetException {
         for (Method method : suppertMethods) {
             method.setAccessible(true);
             method.invoke(instance);
         }
     }
 
-    private static Object newInstance(ClassDetails classDetails) {
+    private Object newInstance(ClassDetails classDetails) {
         try {
             return classDetails.getConstructor().newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {

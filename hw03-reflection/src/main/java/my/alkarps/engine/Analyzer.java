@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  */
 public class Analyzer {
 
-    public static ClassDetails analyze(Class<?> testClass) {
+    public ClassDetails analyze(Class<?> testClass) {
         throwExceptionIfNotValid(testClass == null, "Класс не указан.");
         ClassDetails classDetails = ClassDetails.builder()
                 .className(testClass.getCanonicalName())
@@ -33,25 +33,25 @@ public class Analyzer {
         return classDetails;
     }
 
-    private static void throwExceptionIfNotValid(boolean condition, String message) {
+    private void throwExceptionIfNotValid(boolean condition, String message) {
         if (condition) {
             throw new NotValidClassException(message);
         }
     }
 
-    private static Constructor<?> findConstructor(Class<?> testClass) {
+    private Constructor<?> findConstructor(Class<?> testClass) {
         return Arrays.stream(testClass.getConstructors())
                 .filter(defCons -> Modifier.isPublic(defCons.getModifiers()))
                 .filter(defCons -> !defCons.isVarArgs())
                 .findFirst().orElseThrow(() -> new NotValidClassException("Конструктор класса должен быть public и быть без аргументов"));
     }
 
-    private static Stream<Method> findMethodsWithAnnotation(Class<?> testClass, Class<? extends Annotation> annotation) {
+    private Stream<Method> findMethodsWithAnnotation(Class<?> testClass, Class<? extends Annotation> annotation) {
         return Stream.of(testClass.getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(annotation));
     }
 
-    private static List<ClassDetails.MethodDetails> findTestMethods(Class<?> testClass) {
+    private List<ClassDetails.MethodDetails> findTestMethods(Class<?> testClass) {
         List<Method> beforeEach = findMethodsWithAnnotation(testClass, BeforeEach.class).collect(Collectors.toList());
         throwExceptionIfNotValid(hasStaticMethod(beforeEach), "Метод, аннотированный BeforeEach, должен быть без модификатора static");
         List<Method> afterEach = findMethodsWithAnnotation(testClass, AfterEach.class).collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class Analyzer {
                 .collect(Collectors.toList());
     }
 
-    private static boolean hasStaticMethod(List<Method> methods) {
+    private boolean hasStaticMethod(List<Method> methods) {
         return methods.stream().anyMatch(method -> Modifier.isStatic(method.getModifiers()));
     }
 }
