@@ -1,4 +1,4 @@
-package my.alkarps.engine;
+package my.alkarps.engine.exception;
 
 /**
  * @author alkarps

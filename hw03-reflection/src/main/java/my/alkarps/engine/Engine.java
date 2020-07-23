@@ -1,5 +1,6 @@
 package my.alkarps.engine;
 
+import my.alkarps.engine.exception.NotValidClassException;
 import my.alkarps.engine.model.ClassDetails;
 import my.alkarps.engine.model.Statistics;
 
