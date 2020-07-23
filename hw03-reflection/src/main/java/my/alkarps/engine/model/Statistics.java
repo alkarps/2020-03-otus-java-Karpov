@@ -3,6 +3,9 @@ package my.alkarps.engine.model;
 import lombok.Builder;
 import lombok.Singular;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Duration;
 import java.util.List;
 
@@ -29,7 +32,17 @@ public class Statistics {
             return "Метод " + methodName +
                     " выполнялся " + Statistics.toString(methodTestTime) +
                     " и завершился" + (success ? " успешно " :
-                    (" с ошибкой: " + throwable));
+                    (" с ошибкой: " + printThrowable()));
+        }
+
+        private String printThrowable() {
+            try (StringWriter sw = new StringWriter();
+                 PrintWriter pw = new PrintWriter(sw)) {
+                throwable.printStackTrace(pw);
+                return sw.toString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

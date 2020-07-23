@@ -59,7 +59,7 @@ public class Analyzer {
         return methods;
     }
 
-    private List<ClassDetails.MethodDetails> findTestMethods(Class<?> testClass) {
+    List<ClassDetails.MethodDetails> findTestMethods(Class<?> testClass) {
         List<Method> beforeEach = findAndNonStaticValidationMethodsWithAnnotation(testClass, BeforeEach.class);
         List<Method> afterEach = findAndNonStaticValidationMethodsWithAnnotation(testClass, AfterEach.class);
         List<ClassDetails.MethodDetails> methods = findMethodsWithAnnotationStream(testClass, Test.class)
