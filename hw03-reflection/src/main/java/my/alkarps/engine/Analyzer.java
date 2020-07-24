@@ -25,7 +25,7 @@ public class Analyzer {
     public ClassDetails analyze(Class<?> testClass) {
         throwExceptionIfNotValid(testClass == null, ClassNotFoundException::new);
         return ClassDetails.builder()
-                .className(testClass.getCanonicalName())
+                .className(testClass.getSimpleName())
                 .constructor(findConstructor(testClass))
                 .beforeAllMethods(findAndStaticValidationMethodsWithAnnotation(testClass, BeforeAll.class))
                 .afterAllMethods(findAndStaticValidationMethodsWithAnnotation(testClass, AfterAll.class))
