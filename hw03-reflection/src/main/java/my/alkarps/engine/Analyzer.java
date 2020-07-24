@@ -41,8 +41,15 @@ public class Analyzer {
                 .orElseThrow(NotValidConstructorException::new);
     }
 
+    private Stream<Method> getDeclaredMethods(Class<?> testClass) {
+        if (testClass == Object.class) {
+            return Stream.empty();
+        }
+        return Stream.concat(Stream.of(testClass.getDeclaredMethods()), getDeclaredMethods(testClass.getSuperclass()));
+    }
+
     private Stream<Method> findMethodsWithAnnotationStream(Class<?> testClass, Class<? extends Annotation> annotation) {
-        return Stream.of(testClass.getDeclaredMethods())
+        return getDeclaredMethods(testClass)
                 .filter(method -> method.isAnnotationPresent(annotation));
     }
 

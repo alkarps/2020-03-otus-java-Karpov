@@ -1,22 +1,15 @@
-package my.alkarps.engine.helper.inheritance.without;
+package my.alkarps.engine.helper.inheritance.with;
 
 import my.alkarps.annotation.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 /**
  * @author alkarps
- * create date 17.07.2020 17:48
+ * create date 24.07.2020 12:11
  */
-public class OnlyTestMethods {
+public class AbstractClassWithTestMethod {
     @Test
     public void publicMethod() {
         System.out.println("this public method");
-    }
-
-    @Test
-    private void privateMethod() {
-        fail("Вызван метод, хотя не должен");
     }
 
     @Test

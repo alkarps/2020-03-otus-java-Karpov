@@ -6,6 +6,7 @@ import my.alkarps.engine.exception.validate.ClassNotFoundException;
 import my.alkarps.engine.exception.validate.*;
 import my.alkarps.engine.helper.StatisticsCaptor;
 import my.alkarps.engine.helper.fail.*;
+import my.alkarps.engine.helper.inheritance.with.OnlyTestMethodWithInheritance;
 import my.alkarps.engine.helper.inheritance.without.*;
 import my.alkarps.engine.helper.invalid.*;
 import my.alkarps.engine.model.Statistics;
@@ -177,7 +178,8 @@ class EngineTest {
                 createArguments(TestAndBeforeEachAndAfterAllMethods.class),
                 createArguments(TestAndBeforeEachAndAfterEachAndAfterAllMethods.class),
                 createArguments(TestAndBeforeEachAndAfterEachMethods.class),
-                createArguments(TestAndBeforeEachMethods.class));
+                createArguments(TestAndBeforeEachMethods.class),
+                createArguments(OnlyTestMethodWithInheritance.class));
     }
 
     private static Arguments createArguments(Class<?> testClass) {
