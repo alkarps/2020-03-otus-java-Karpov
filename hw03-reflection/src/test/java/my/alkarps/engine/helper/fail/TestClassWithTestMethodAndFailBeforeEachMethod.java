@@ -1,4 +1,4 @@
-package my.alkarps.engine.helper.valid;
+package my.alkarps.engine.helper.fail;
 
 import my.alkarps.annotation.BeforeEach;
 import my.alkarps.annotation.Test;

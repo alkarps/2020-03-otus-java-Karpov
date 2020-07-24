@@ -1,31 +1,28 @@
-package my.alkarps.engine.helper.notvalid;
-
-import my.alkarps.annotation.BeforeEach;
+package my.alkarps.engine.helper.invalid;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author alkarps
- * create date 17.07.2020 18:13
+ * create date 17.07.2020 17:48
  */
-public class TestClassWithOnlyBeforeEachMethods {
-    @BeforeEach
-    public void setUp() {
+public class TestClassWithPublicConstructorButNotTestMethods {
+    public TestClassWithPublicConstructorButNotTestMethods() {
+    }
+
+    public void publicMethod(){
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeEach
-    protected void setUp2() {
+    private void privateMethod(){
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeEach
-    private void setUp3() {
+    protected void protectedMethod(){
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeEach
-    void setUp4() {
+    void packageMethod(){
         fail("Вызван метод, хотя не должен");
     }
 }

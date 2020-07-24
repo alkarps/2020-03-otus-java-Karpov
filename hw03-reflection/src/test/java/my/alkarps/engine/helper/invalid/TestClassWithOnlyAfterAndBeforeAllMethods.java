@@ -1,7 +1,7 @@
-package my.alkarps.engine.helper.notvalid;
+package my.alkarps.engine.helper.invalid;
 
-import my.alkarps.annotation.AfterEach;
-import my.alkarps.annotation.BeforeEach;
+import my.alkarps.annotation.AfterAll;
+import my.alkarps.annotation.BeforeAll;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -9,43 +9,44 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author alkarps
  * create date 17.07.2020 18:20
  */
-public class TestClassWithOnlyAfterAndBeforeEachMethods {
-    @BeforeEach
-    public void setUp() {
+public class TestClassWithOnlyAfterAndBeforeAllMethods {
+    @BeforeAll
+    public static void setUp() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeEach
-    protected void setUp2() {
+    @BeforeAll
+    protected static void setUp2() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeEach
-    private void setUp3() {
+    @BeforeAll
+    private static void setUp3() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeEach
-    void setUp4() {
-        fail("Вызван метод, хотя не должен");
-    }
-    @AfterEach
-    public void setDown() {
+    @BeforeAll
+    static void setUp4() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @AfterEach
-    protected void setDown2() {
+    @AfterAll
+    public static void setDown() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @AfterEach
-    private void setDown3() {
+    @AfterAll
+    protected static void setDown2() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @AfterEach
-    void setDown4() {
+    @AfterAll
+    private static void setDown3() {
+        fail("Вызван метод, хотя не должен");
+    }
+
+    @AfterAll
+    static void setDown4() {
         fail("Вызван метод, хотя не должен");
     }
 }

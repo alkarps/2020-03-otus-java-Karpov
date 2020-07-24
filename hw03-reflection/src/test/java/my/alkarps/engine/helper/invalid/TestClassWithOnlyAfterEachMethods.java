@@ -1,31 +1,31 @@
-package my.alkarps.engine.helper.notvalid;
+package my.alkarps.engine.helper.invalid;
 
-import my.alkarps.annotation.BeforeAll;
+import my.alkarps.annotation.AfterEach;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author alkarps
- * create date 17.07.2020 18:13
+ * create date 17.07.2020 18:15
  */
-public class TestClassWithOnlyBeforeAllMethods {
-    @BeforeAll
-    public static void setUp() {
+public class TestClassWithOnlyAfterEachMethods {
+    @AfterEach
+    public void setDown() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeAll
-    protected static void setUp2() {
+    @AfterEach
+    protected void setDown2() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeAll
-    private static void setUp3() {
+    @AfterEach
+    private void setDown3() {
         fail("Вызван метод, хотя не должен");
     }
 
-    @BeforeAll
-    static void setUp4() {
+    @AfterEach
+    void setDown4() {
         fail("Вызван метод, хотя не должен");
     }
 }

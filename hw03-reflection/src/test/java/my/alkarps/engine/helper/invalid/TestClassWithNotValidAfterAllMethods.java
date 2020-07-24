@@ -1,4 +1,4 @@
-package my.alkarps.engine.helper.notvalid;
+package my.alkarps.engine.helper.invalid;
 
 import my.alkarps.annotation.AfterAll;
 
