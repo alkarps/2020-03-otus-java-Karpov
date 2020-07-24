@@ -11,12 +11,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class FailWithAfterAllMethod {
     @AfterAll
-    public static void setDown(){
+    public static void setDown() {
         fail("Тут должно упасть");
     }
 
     @Test
     public void publicMethod() {
-        System.out.println("Этот вызов должно быть");
     }
 }

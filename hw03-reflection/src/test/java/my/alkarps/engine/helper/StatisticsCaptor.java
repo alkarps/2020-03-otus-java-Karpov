@@ -1,5 +1,6 @@
 package my.alkarps.engine.helper;
 
+import my.alkarps.engine.model.Statistics;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -8,16 +9,16 @@ import org.mockito.stubbing.Answer;
  * create date 23.07.2020 10:04
  * Хак для получения результата операции
  */
-public class ResultCaptor<T> implements Answer {
-    private T result;
+public class StatisticsCaptor implements Answer<Statistics> {
+    private Statistics result;
 
-    public T getResult() {
+    public Statistics getResult() {
         return result;
     }
 
     @Override
-    public T answer(InvocationOnMock invocation) throws Throwable {
-        result = (T) invocation.callRealMethod();
+    public Statistics answer(InvocationOnMock invocation) throws Throwable {
+        result = (Statistics) invocation.callRealMethod();
         return result;
     }
 }

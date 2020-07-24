@@ -4,20 +4,20 @@ import my.alkarps.engine.exception.execute.CreateTestInstanceClassException;
 import my.alkarps.engine.exception.execute.InvokeSupportMethodException;
 import my.alkarps.engine.exception.validate.ClassNotFoundException;
 import my.alkarps.engine.exception.validate.*;
-import my.alkarps.engine.helper.ResultCaptor;
+import my.alkarps.engine.helper.StatisticsCaptor;
 import my.alkarps.engine.helper.fail.*;
 import my.alkarps.engine.helper.inheritance.without.*;
 import my.alkarps.engine.helper.invalid.*;
-import my.alkarps.engine.model.ClassDetails;
 import my.alkarps.engine.model.Statistics;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -145,47 +145,55 @@ class EngineTest {
         return Stream.of(FailWithAfterAllMethod.class, FailWithBeforeAllMethod.class);
     }
 
-    @Test
-    void run_WhenClassValid_thenRunTest() {
-        Class<?> testClass = OnlyTestMethods.class;
-        ResultCaptor<ClassDetails> classDetailsCaptor = new ResultCaptor<>();
-        doAnswer(classDetailsCaptor).when(analyzer).analyze(testClass);
-        ResultCaptor<Statistics> statisticsCaptor = new ResultCaptor<>();
-        doAnswer(statisticsCaptor).when(runner).run(any());
-        testWithoutAnyExceptions(testClass);
-        Assertions.assertNotNull(classDetailsCaptor.getResult());
-        Assertions.assertNotNull(statisticsCaptor.getResult());
-        verifyAnalizer(testClass);
-    }
-
     @ParameterizedTest
     @MethodSource("validTest")
-    void run_WhenClassValid_thenRunTest(Class<?> testClass) {
+    void run_WhenClassValid_thenRunTest(Class<?> testClass, Statistics statistics) {
+        StatisticsCaptor statisticsCaptor = new StatisticsCaptor();
+        doAnswer(statisticsCaptor).when(runner).run(any());
         testWithoutAnyExceptions(testClass);
         verifyAnalizer(testClass);
+        verify(runner).run(any());
+        assertThat(statisticsCaptor.getResult()).isEqualToComparingFieldByField(statistics);
     }
 
-    static Stream<Class<?>> validTest() {
-        return Stream.of(TestAndBeforeEachMethods.class,
-                TestAndAfterEachMethods.class,
-                TestAndBeforeEachAndAfterEachMethods.class,
-                WorkTestMethodButFailBeforeEachMethod.class,
-                FailTestMethod.class,
-                WorkTestButFailAfterEachMethod.class,
-                TestAndAfterAllMethods.class,
-                TestAndAfterEachAndAfterAllMethods.class,
-                TestAndBeforeAllAndAfterAllMethods.class,
-                TestAndBeforeAllAndAfterEachAndAfterAllMethods.class,
-                TestAndBeforeAllAndAfterEachMethods.class,
-                TestAndBeforeAllAndBeforeEachAndAfterAllMethods.class,
-                TestAndBeforeAllAndBeforeEachAndAfterEachAndAfterAllMethods.class,
-                TestAndBeforeAllAndBeforeEachAndAfterEachMethods.class,
-                TestAndBeforeAllAndBeforeEachMethods.class,
-                TestAndBeforeAllMethods.class,
-                TestAndBeforeEachAndAfterAllMethods.class,
-                TestAndBeforeEachAndAfterEachAndAfterAllMethods.class,
-                TestAndBeforeEachAndAfterEachMethods.class,
-                TestAndBeforeEachMethods.class);
+    static Stream<Arguments> validTest() {
+        return Stream.of(createArguments(OnlyTestMethods.class),
+                createArguments(TestAndBeforeEachMethods.class),
+                createArguments(TestAndAfterEachMethods.class),
+                createArguments(TestAndBeforeEachAndAfterEachMethods.class),
+                createArgumentsForFailTest(WorkTestMethodButFailBeforeEachMethod.class),
+                createArgumentsForFailTest(FailTestMethod.class),
+                createArgumentsForFailTest(WorkTestButFailAfterEachMethod.class),
+                createArguments(TestAndAfterAllMethods.class),
+                createArguments(TestAndAfterEachAndAfterAllMethods.class),
+                createArguments(TestAndBeforeAllAndAfterAllMethods.class),
+                createArguments(TestAndBeforeAllAndAfterEachAndAfterAllMethods.class),
+                createArguments(TestAndBeforeAllAndAfterEachMethods.class),
+                createArguments(TestAndBeforeAllAndBeforeEachAndAfterAllMethods.class),
+                createArguments(TestAndBeforeAllAndBeforeEachAndAfterEachAndAfterAllMethods.class),
+                createArguments(TestAndBeforeAllAndBeforeEachAndAfterEachMethods.class),
+                createArguments(TestAndBeforeAllAndBeforeEachMethods.class),
+                createArguments(TestAndBeforeAllMethods.class),
+                createArguments(TestAndBeforeEachAndAfterAllMethods.class),
+                createArguments(TestAndBeforeEachAndAfterEachAndAfterAllMethods.class),
+                createArguments(TestAndBeforeEachAndAfterEachMethods.class),
+                createArguments(TestAndBeforeEachMethods.class));
+    }
+
+    private static Arguments createArguments(Class<?> testClass) {
+        return Arguments.of(testClass, createStatistics(testClass));
+    }
+
+    private static Statistics createStatistics(Class<?> testClass) {
+        return new Statistics(testClass.getSimpleName(), 3, 3);
+    }
+
+    private static Arguments createArgumentsForFailTest(Class<?> testClass) {
+        return Arguments.of(testClass, createStatisticsForFailTest(testClass));
+    }
+
+    private static Statistics createStatisticsForFailTest(Class<?> testClass) {
+        return new Statistics(testClass.getSimpleName(), 1, 0);
     }
 
     private void testWithoutAnyExceptions(Class<?> testClass) {

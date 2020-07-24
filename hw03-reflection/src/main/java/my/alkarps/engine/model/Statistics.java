@@ -1,5 +1,6 @@
 package my.alkarps.engine.model;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.NonFinal;
@@ -10,6 +11,7 @@ import lombok.experimental.NonFinal;
  */
 @Value
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class Statistics {
     String classTestName;
     long total;
