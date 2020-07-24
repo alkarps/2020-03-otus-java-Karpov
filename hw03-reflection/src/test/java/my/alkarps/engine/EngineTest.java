@@ -6,8 +6,8 @@ import my.alkarps.engine.exception.validate.ClassNotFoundException;
 import my.alkarps.engine.exception.validate.*;
 import my.alkarps.engine.helper.ResultCaptor;
 import my.alkarps.engine.helper.fail.*;
+import my.alkarps.engine.helper.inheritance.without.*;
 import my.alkarps.engine.helper.invalid.*;
-import my.alkarps.engine.helper.valid.*;
 import my.alkarps.engine.model.ClassDetails;
 import my.alkarps.engine.model.Statistics;
 import org.junit.jupiter.api.Assertions;
@@ -56,14 +56,14 @@ class EngineTest {
     }
 
     static Stream<Class<?>> notValidConstructor() {
-        return Stream.of(EmptyTestClassWithPublicConstructorWithArgs.class,
-                EmptyTestClassWithPrivateConstructorWithArgs.class,
-                EmptyTestClassWithPrivateConstructor.class);
+        return Stream.of(PublicConstructorWithArgs.class,
+                PrivateConstructorWithArgs.class,
+                PrivateConstructor.class);
     }
 
     @Test
     void run_WhenClassValidAndHasNotValidBeforeEachMethods() {
-        Class<?> testClass = TestClassWithNotValidBeforeEachMethods.class;
+        Class<?> testClass = NotValidBeforeEachMethods.class;
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(MethodHasStaticModifierException.class)
                 .hasMessage("Класс не валиден: Метод, аннотированный BeforeEach, должен быть без модификатора static");
@@ -73,7 +73,7 @@ class EngineTest {
 
     @Test
     void run_WhenClassValidAndHasNotValidAfterEachMethods() {
-        Class<?> testClass = TestClassWithNotValidAfterEachMethods.class;
+        Class<?> testClass = NotValidAfterEachMethods.class;
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(MethodHasStaticModifierException.class)
                 .hasMessage("Класс не валиден: Метод, аннотированный AfterEach, должен быть без модификатора static");
@@ -83,7 +83,7 @@ class EngineTest {
 
     @Test
     void run_WhenClassValidAndHasNotValidBeforeAllMethods() {
-        Class<?> testClass = TestClassWithNotValidBeforeAllMethods.class;
+        Class<?> testClass = NotValidBeforeAllMethods.class;
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(MethodNotHasStaticModifierException.class)
                 .hasMessage("Класс не валиден: Метод, аннотированный BeforeAll, должен быть только с модификатором static");
@@ -93,7 +93,7 @@ class EngineTest {
 
     @Test
     void run_WhenClassValidAndHasNotValidAfterAllMethods() {
-        Class<?> testClass = TestClassWithNotValidAfterAllMethods.class;
+        Class<?> testClass = NotValidAfterAllMethods.class;
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(MethodNotHasStaticModifierException.class)
                 .hasMessage("Класс не валиден: Метод, аннотированный AfterAll, должен быть только с модификатором static");
@@ -104,7 +104,7 @@ class EngineTest {
     @ParameterizedTest
     @MethodSource("withoutMethods")
     void run_WhenClassWithoutTestMethods() {
-        Class<?> testClass = EmptyTestClassWithPublicConstructor.class;
+        Class<?> testClass = WithoutAnyMethods.class;
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(ClassWithoutTestMethodException.class)
                 .hasMessage("Класс не валиден: Отсутствуют методы для тестирования.");
@@ -113,19 +113,19 @@ class EngineTest {
     }
 
     static Stream<Class<?>> withoutMethods() {
-        return Stream.of(EmptyTestClassWithPublicConstructor.class,
-                TestClassWithPublicConstructorButNotTestMethods.class,
-                TestClassWithOnlyBeforeEachMethods.class,
-                TestClassWithOnlyAfterEachMethods.class,
-                TestClassWithOnlyAfterAndBeforeEachMethods.class,
-                TestClassWithOnlyAfterAndBeforeAllMethods.class,
-                TestClassWithOnlyAfterAllMethods.class,
-                TestClassWithOnlyBeforeAllMethods.class);
+        return Stream.of(WithoutAnyMethods.class,
+                WithoutTestMethods.class,
+                OnlyBeforeEachMethods.class,
+                OnlyAfterEachMethods.class,
+                OnlyAfterAndBeforeEachMethods.class,
+                OnlyAfterAndBeforeAllMethods.class,
+                OnlyAfterAllMethods.class,
+                OnlyBeforeAllMethods.class);
     }
 
     @Test
     void run_WhenClassConstructorFail() {
-        Class<?> testClass = TestClassWithFailConstructor.class;
+        Class<?> testClass = FailConstructor.class;
         assertThatCode(() -> engine.run(testClass))
                 .isInstanceOf(CreateTestInstanceClassException.class)
                 .hasMessage("Ошибка инициализации тестового класса");
@@ -142,12 +142,12 @@ class EngineTest {
     }
 
     static Stream<Class<?>> supportMethodsFail() {
-        return Stream.of(TestClassFailWithAfterAllMethod.class, TestClassFailWithBeforeAllMethod.class);
+        return Stream.of(FailWithAfterAllMethod.class, FailWithBeforeAllMethod.class);
     }
 
     @Test
-    void run_WhenClassWithPublicConstructorAndTestMethods() {
-        Class<?> testClass = TestClassWithPublicConstructorAndTestMethods.class;
+    void run_WhenClassValid_thenRunTest() {
+        Class<?> testClass = OnlyTestMethods.class;
         ResultCaptor<ClassDetails> classDetailsCaptor = new ResultCaptor<>();
         doAnswer(classDetailsCaptor).when(analyzer).analyze(testClass);
         ResultCaptor<Statistics> statisticsCaptor = new ResultCaptor<>();
@@ -158,46 +158,34 @@ class EngineTest {
         verifyAnalizer(testClass);
     }
 
-    @Test
-    void run_WhenClassHasTestAndBeforeEachMethods() {
-        Class<?> testClass = TestClassWithTestAndBeforeEachMethods.class;
+    @ParameterizedTest
+    @MethodSource("validTest")
+    void run_WhenClassValid_thenRunTest(Class<?> testClass) {
         testWithoutAnyExceptions(testClass);
         verifyAnalizer(testClass);
     }
 
-    @Test
-    void run_WhenClassHasTestAndAfterEachMethods() {
-        Class<?> testClass = TestClassWithTestAndAfterEachMethods.class;
-        testWithoutAnyExceptions(testClass);
-        verifyAnalizer(testClass);
-    }
-
-    @Test
-    void run_WhenClassHasTestAndBeforeEachAndAfterEachMethods() {
-        Class<?> testClass = TestClassWithTestAndBeforeEachAndAfterEachMethods.class;
-        testWithoutAnyExceptions(testClass);
-        verifyAnalizer(testClass);
-    }
-
-    @Test
-    void run_WhenClassHasTestMethodAndFailBeforeEachMethod() {
-        Class<?> testClass = TestClassWithTestMethodAndFailBeforeEachMethod.class;
-        testWithoutAnyExceptions(testClass);
-        verifyAnalizer(testClass);
-    }
-
-    @Test
-    void run_WhenClassHasFailTestMethod() {
-        Class<?> testClass = TestClassWithFailTestMethod.class;
-        testWithoutAnyExceptions(testClass);
-        verifyAnalizer(testClass);
-    }
-
-    @Test
-    void run_WhenClassHasTestMethodAndFailAfterEachMethod() {
-        Class<?> testClass = TestClassWithTestMethodAndFailAfterEachMethod.class;
-        testWithoutAnyExceptions(testClass);
-        verifyAnalizer(testClass);
+    static Stream<Class<?>> validTest() {
+        return Stream.of(TestAndBeforeEachMethods.class,
+                TestAndAfterEachMethods.class,
+                TestAndBeforeEachAndAfterEachMethods.class,
+                WorkTestMethodButFailBeforeEachMethod.class,
+                FailTestMethod.class,
+                WorkTestButFailAfterEachMethod.class,
+                TestAndAfterAllMethods.class,
+                TestAndAfterEachAndAfterAllMethods.class,
+                TestAndBeforeAllAndAfterAllMethods.class,
+                TestAndBeforeAllAndAfterEachAndAfterAllMethods.class,
+                TestAndBeforeAllAndAfterEachMethods.class,
+                TestAndBeforeAllAndBeforeEachAndAfterAllMethods.class,
+                TestAndBeforeAllAndBeforeEachAndAfterEachAndAfterAllMethods.class,
+                TestAndBeforeAllAndBeforeEachAndAfterEachMethods.class,
+                TestAndBeforeAllAndBeforeEachMethods.class,
+                TestAndBeforeAllMethods.class,
+                TestAndBeforeEachAndAfterAllMethods.class,
+                TestAndBeforeEachAndAfterEachAndAfterAllMethods.class,
+                TestAndBeforeEachAndAfterEachMethods.class,
+                TestAndBeforeEachMethods.class);
     }
 
     private void testWithoutAnyExceptions(Class<?> testClass) {
