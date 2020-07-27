@@ -5,5 +5,5 @@ package my.alkarps.atm.model.operation;
  * create date 27.07.2020 13:46
  */
 public interface RemoveBanknotes {
-    void removeBanknotes(long amount);
+    long removeBanknotes(long amount);
 }

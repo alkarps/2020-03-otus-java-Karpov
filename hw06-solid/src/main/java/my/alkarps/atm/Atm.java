@@ -1,7 +1,7 @@
 package my.alkarps.atm;
 
-import my.alkarps.atm.model.operation.CashBoxOperation;
 import my.alkarps.atm.model.exception.CashBoxIsEmptyException;
+import my.alkarps.atm.model.operation.CashBoxOperation;
 import my.alkarps.atm.model.operation.UserOperation;
 
 /**
@@ -33,8 +33,8 @@ public class Atm implements UserOperation {
     }
 
     @Override
-    public void removeBanknotes(long amount) {
-
+    public long removeBanknotes(long amount) {
+        return cashBox.removeBanknotes(amount);
     }
 
     public static class Builder {

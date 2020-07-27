@@ -226,7 +226,7 @@ class CashBoxTest {
         Cassette cassetteWith500bAfter = cassetteWith500b.removeBanknotes(count500);
         long count100 = (amount % 500) / 100;
         Cassette cassetteWith100bAfter = cassetteWith100b.removeBanknotes(count100);
-        assertThatCode(() -> cashBox.removeBanknotes(amount)).doesNotThrowAnyException();
+        assertThat(cashBox.removeBanknotes(amount)).isEqualTo(count100 + count500);
         assertThat(cashBox).isInstanceOf(CashBox.class)
                 .extracting("cassettes")
                 .asList()

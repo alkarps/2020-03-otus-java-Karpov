@@ -85,22 +85,25 @@ public class CashBox implements CashBoxOperation, BackupState, RestoreState {
     }
 
     @Override
-    public void removeBanknotes(long amount) {
+    public long removeBanknotes(long amount) {
         if (amount > 0) {
             List<Cassette> _cassettes = new ArrayList<>();
+            long removingBanknotes = 0L;
             if (amount <= getCurrentAmount()) {
                 for (Cassette cassette : cassettes) {
                     long banknotes = amount / cassette.getDenomination().getAmount();
                     Cassette newState = cassette.removeBanknotes(banknotes);
-                    long removingBanknotes = cassette.getCount() - newState.getCount();
+                    long _removingBanknotes = cassette.getCount() - newState.getCount();
+                    removingBanknotes += _removingBanknotes;
                     _cassettes.add(newState);
-                    amount = amount - (removingBanknotes * cassette.getDenomination().getAmount());
+                    amount = amount - (_removingBanknotes * cassette.getDenomination().getAmount());
                 }
             }
             if (amount != 0) {
                 throw new NotEnoughBanknotesException();
             }
             updateCassettesWithSort(_cassettes);
+            return removingBanknotes;
         } else {
             throw new InvalidAmountException();
         }
