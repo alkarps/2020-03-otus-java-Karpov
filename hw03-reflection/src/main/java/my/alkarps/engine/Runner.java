@@ -1,10 +1,10 @@
 package my.alkarps.engine;
 
-import my.alkarps.engine.exception.execute.CreateTestInstanceClassException;
 import my.alkarps.engine.exception.execute.InvokeSupportMethodException;
 import my.alkarps.engine.model.ClassDetails;
 import my.alkarps.engine.model.Statistics;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -16,29 +16,25 @@ import java.util.List;
 public class Runner {
     Statistics run(ClassDetails classDetails) {
         Statistics statistics = new Statistics(classDetails.getClassName(), classDetails.getTestMethods().size());
-        Object instance = null;
         try {
-            instance = newInstance(classDetails);
-            invokeSupportMethods(instance, classDetails.getBeforeAllMethods());
+            invokeStaticSupportMethods(classDetails.getBeforeAllMethods());
             for (ClassDetails.MethodDetails method : classDetails.getTestMethods()) {
-                boolean result = testMethod(instance, method);
+                boolean result = testMethod(classDetails.getConstructor(), method);
                 if (result) {
                     statistics.addSuccess();
                 }
             }
-            invokeSupportMethods(instance, classDetails.getAfterAllMethods());
+            invokeStaticSupportMethods(classDetails.getAfterAllMethods());
             return statistics;
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            if (instance != null) {
-                throw new InvokeSupportMethodException(e);
-            }
-            throw new CreateTestInstanceClassException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new InvokeSupportMethodException(e);
         }
     }
 
-    private boolean testMethod(Object instance, ClassDetails.MethodDetails methodDetails) {
+    private boolean testMethod(Constructor<?> instanceConstructor, ClassDetails.MethodDetails methodDetails) {
         boolean success = true;
         try {
+            Object instance = instanceConstructor.newInstance();
             invokeSupportMethods(instance, methodDetails.getBeforeEachMethods());
             methodDetails.getMethod().setAccessible(true);
             methodDetails.getMethod().invoke(instance);
@@ -51,14 +47,14 @@ public class Runner {
         return success;
     }
 
-    private void invokeSupportMethods(Object instance, List<Method> suppertMethods) throws IllegalAccessException, InvocationTargetException {
-        for (Method method : suppertMethods) {
+    private void invokeStaticSupportMethods(List<Method> supportMethods) throws IllegalAccessException, InvocationTargetException {
+        invokeSupportMethods(null, supportMethods);
+    }
+
+    private void invokeSupportMethods(Object instance, List<Method> supportMethods) throws IllegalAccessException, InvocationTargetException {
+        for (Method method : supportMethods) {
             method.setAccessible(true);
             method.invoke(instance);
         }
-    }
-
-    private Object newInstance(ClassDetails classDetails) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        return classDetails.getConstructor().newInstance();
     }
 }

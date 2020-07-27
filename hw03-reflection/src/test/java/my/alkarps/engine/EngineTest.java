@@ -1,6 +1,5 @@
 package my.alkarps.engine;
 
-import my.alkarps.engine.exception.execute.CreateTestInstanceClassException;
 import my.alkarps.engine.exception.execute.InvokeSupportMethodException;
 import my.alkarps.engine.exception.validate.ClassNotFoundException;
 import my.alkarps.engine.exception.validate.*;
@@ -124,15 +123,6 @@ class EngineTest {
                 OnlyBeforeAllMethods.class);
     }
 
-    @Test
-    void run_WhenClassConstructorFail() {
-        Class<?> testClass = FailConstructor.class;
-        assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(CreateTestInstanceClassException.class)
-                .hasMessage("Ошибка инициализации тестового класса");
-        verifyAnalizer(testClass);
-    }
-
     @ParameterizedTest
     @MethodSource("supportMethodsFail")
     void run_WhenSupportMethodIsFail(Class<?> testClass) {
@@ -163,6 +153,7 @@ class EngineTest {
                 createArguments(TestAndAfterEachMethods.class),
                 createArguments(TestAndBeforeEachAndAfterEachMethods.class),
                 createArgumentsForFailTest(WorkTestMethodButFailBeforeEachMethod.class),
+                createArgumentsForFailTest(FailConstructor.class),
                 createArgumentsForFailTest(FailTestMethod.class),
                 createArgumentsForFailTest(WorkTestButFailAfterEachMethod.class),
                 createArguments(TestAndAfterAllMethods.class),
