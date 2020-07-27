@@ -1,4 +1,4 @@
-package my.alkarps.atm.operation;
+package my.alkarps.atm.model.operation;
 
 /**
  * @author alkarps

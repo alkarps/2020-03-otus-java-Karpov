@@ -1,26 +1,53 @@
 package my.alkarps.atm.model;
 
-import my.alkarps.atm.operation.CurrentAmount;
-import my.alkarps.atm.operation.Empty;
+import lombok.EqualsAndHashCode;
+import my.alkarps.atm.model.exception.CassetteStateIsWrongException;
+import my.alkarps.atm.model.exception.DenominationNotInitialException;
+import my.alkarps.atm.model.memento.BackupState;
+import my.alkarps.atm.model.operation.CurrentAmount;
+import my.alkarps.atm.model.operation.Empty;
 
-import java.math.BigInteger;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * @author alkarps
  * create date 22.07.2020 13:52
  */
-public class Cassette implements CurrentAmount, Empty {
-    private long count;
+@EqualsAndHashCode
+public class Cassette implements CurrentAmount, Empty, BackupState {
+    private static final String DELIMITER = ":";
     private final Denomination denomination;
+    private final long count;
 
     private Cassette(Denomination denomination, long count) {
         this.denomination = denomination;
         this.count = count;
     }
 
+    private Cassette(String restoringState) {
+        throwIfNotValidState(isNullOrEmpty(restoringState) ||
+                !restoringState.contains(DELIMITER));
+        String[] state = restoringState.split(DELIMITER);
+        throwIfNotValidState(state.length != 2);
+        this.denomination = Denomination.fromName(state[0])
+                .orElseThrow(CassetteStateIsWrongException::new);
+        try {
+            this.count = Long.parseLong(state[1]);
+        } catch (NumberFormatException ex) {
+            throw new CassetteStateIsWrongException(ex);
+        }
+        throwIfNotValidState(count < 0);
+    }
+
+    private void throwIfNotValidState(boolean check) {
+        if (check) {
+            throw new CassetteStateIsWrongException();
+        }
+    }
+
     @Override
-    public BigInteger getCurrentAmount() {
-        return BigInteger.valueOf(count).multiply(denomination.getAmount());
+    public long getCurrentAmount() {
+        return count * denomination.getAmount();
     }
 
     @Override
@@ -28,24 +55,41 @@ public class Cassette implements CurrentAmount, Empty {
         return count <= 0;
     }
 
+    @Override
+    public String backup() {
+        return denomination.name() + DELIMITER + count;
+    }
+
     public Denomination getDenomination() {
         return this.denomination;
     }
 
-    public void removeBone(long count) {
-        this.count -= count;
+    public Cassette removeBanknotes(long amount) {
+        return builder().denomination(this.denomination).count(this.count - amount).build();
     }
 
-    public void addBone(long count) {
-        this.count -= count;
+    public Cassette addBanknotes(long amount) {
+        return builder().denomination(this.denomination).count(this.count + amount).build();
     }
 
     public long getCount() {
         return this.count;
     }
 
+    static Cassette restore(String restoringState) {
+        return new Cassette(restoringState);
+    }
+
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static int compare(Cassette c1, Cassette c2) {
+        return -1 * Denomination.compare(getDenomination(c1), getDenomination(c2));
+    }
+
+    private static Denomination getDenomination(Cassette c) {
+        return c == null ? null : c.getDenomination();
     }
 
     public static class Builder {
@@ -67,7 +111,7 @@ public class Cassette implements CurrentAmount, Empty {
 
         public Cassette build() {
             if (denomination == null) {
-                throw new RuntimeException("Номинал кассеты не указан.");
+                throw new DenominationNotInitialException();
             }
             return new Cassette(denomination, count);
         }

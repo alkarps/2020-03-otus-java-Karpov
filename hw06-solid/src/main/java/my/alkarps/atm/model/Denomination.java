@@ -1,6 +1,6 @@
 package my.alkarps.atm.model;
 
-import java.math.BigInteger;
+import java.util.Optional;
 
 /**
  * @author alkarps
@@ -23,7 +23,30 @@ public enum Denomination {
         this.amount = amount;
     }
 
-    public BigInteger getAmount() {
-        return BigInteger.valueOf(amount);
+    public static int compare(Denomination d1, Denomination d2) {
+        return Integer.compare(getAmount(d1), getAmount(d2));
+    }
+
+    private static int getAmount(Denomination d) {
+        return d == null ? -1 : d.amount;
+    }
+
+    public Long getAmount() {
+        return (long) amount;
+    }
+
+    /**
+     * Поиск номинала по названию для восстановления.
+     * Основан на enum.valueOf с перехватом ошибки IllegalArgumentException
+     *
+     * @param name - название номинала
+     * @return Возвращает номинал в обертке Optional
+     */
+    public static Optional<Denomination> fromName(String name) {
+        try {
+            return Optional.of(valueOf(name));
+        } catch (IllegalArgumentException ex) {
+            return Optional.empty();
+        }
     }
 }
