@@ -49,7 +49,7 @@ class EngineTest {
     @MethodSource("notValidConstructor")
     void run_WhenClassEmptyWithPrivateConstructor(Class<?> testClass) {
         assertThatCode(() -> engine.run(testClass))
-                .isInstanceOf(NotValidConstructorException.class)
+                .isInstanceOf(TestConstructorException.class)
                 .hasMessage("Класс не валиден: Конструктор класса должен быть public и быть без аргументов");
         verifyAnalizer(testClass);
         verify(runner, never()).run(any());

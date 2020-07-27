@@ -38,7 +38,7 @@ public class Analyzer {
                 .filter(defCons -> Modifier.isPublic(defCons.getModifiers()))
                 .filter(defCons -> !defCons.isVarArgs())
                 .findFirst()
-                .orElseThrow(NotValidConstructorException::new);
+                .orElseThrow(TestConstructorException::new);
     }
 
     private Stream<Method> getDeclaredMethods(Class<?> testClass) {
