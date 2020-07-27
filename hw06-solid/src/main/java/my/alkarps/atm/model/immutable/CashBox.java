@@ -1,9 +1,9 @@
-package my.alkarps.atm.model;
+package my.alkarps.atm.model.immutable;
 
 import my.alkarps.atm.model.exception.*;
 import my.alkarps.atm.model.memento.BackupState;
 import my.alkarps.atm.model.memento.RestoreState;
-import my.alkarps.atm.model.operation.Empty;
+import my.alkarps.atm.model.operation.CashBoxOperation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,12 @@ import java.util.stream.Stream;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
+ * Реализация кассы на основе иммутабельной кассеты.
+ *
  * @author alkarps
  * create date 22.07.2020 14:35
  */
-public class CashBox implements CashBoxConsole, Empty, BackupState, RestoreState {
+public class CashBox implements CashBoxOperation, BackupState, RestoreState {
     private static final String DELIMITER = ";";
     private List<Cassette> cassettes;
 
@@ -86,12 +88,14 @@ public class CashBox implements CashBoxConsole, Empty, BackupState, RestoreState
     public void removeBanknotes(long amount) {
         if (amount > 0) {
             List<Cassette> _cassettes = new ArrayList<>();
-            for (Cassette cassette : cassettes) {
-                long banknotes = amount / cassette.getDenomination().getAmount();
-                Cassette newState = cassette.removeBanknotes(banknotes);
-                long removingBanknotes = cassette.getCount() - newState.getCount();
-                _cassettes.add(newState);
-                amount = amount - (removingBanknotes * cassette.getDenomination().getAmount());
+            if (amount <= getCurrentAmount()) {
+                for (Cassette cassette : cassettes) {
+                    long banknotes = amount / cassette.getDenomination().getAmount();
+                    Cassette newState = cassette.removeBanknotes(banknotes);
+                    long removingBanknotes = cassette.getCount() - newState.getCount();
+                    _cassettes.add(newState);
+                    amount = amount - (removingBanknotes * cassette.getDenomination().getAmount());
+                }
             }
             if (amount != 0) {
                 throw new NotEnoughBanknotesException();

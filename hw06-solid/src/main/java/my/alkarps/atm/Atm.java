@@ -1,8 +1,8 @@
 package my.alkarps.atm;
 
-import my.alkarps.atm.model.CashBox;
-import my.alkarps.atm.model.CashBoxConsole;
+import my.alkarps.atm.model.operation.CashBoxOperation;
 import my.alkarps.atm.model.exception.CashBoxIsEmptyException;
+import my.alkarps.atm.model.operation.UserOperation;
 
 /**
  * В данный момент является проксей для кассы.
@@ -11,10 +11,10 @@ import my.alkarps.atm.model.exception.CashBoxIsEmptyException;
  * @author alkarps
  * create date 22.07.2020 12:38
  */
-public class Atm implements CashBoxConsole {
-    private final CashBox cashBox;
+public class Atm implements UserOperation {
+    private final CashBoxOperation cashBox;
 
-    private Atm(CashBox cashBox) {
+    private Atm(CashBoxOperation cashBox) {
         this.cashBox = cashBox;
     }
 
@@ -38,21 +38,21 @@ public class Atm implements CashBoxConsole {
     }
 
     public static class Builder {
-        private CashBox cashbox;
+        private CashBoxOperation cashBox;
 
         private Builder() {
         }
 
-        public Builder cashBox(CashBox cashBox) {
-            this.cashbox = cashBox;
+        public Builder cashBox(CashBoxOperation cashBox) {
+            this.cashBox = cashBox;
             return this;
         }
 
         public Atm build() {
-            if (cashbox == null || cashbox.isEmpty()) {
+            if (cashBox == null || cashBox.isEmpty()) {
                 throw new CashBoxIsEmptyException();
             }
-            return new Atm(cashbox);
+            return new Atm(cashBox);
         }
     }
 }

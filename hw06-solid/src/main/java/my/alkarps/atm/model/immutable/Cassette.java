@@ -1,11 +1,14 @@
-package my.alkarps.atm.model;
+package my.alkarps.atm.model.immutable;
 
 import lombok.EqualsAndHashCode;
+import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.CassetteStateIsWrongException;
 import my.alkarps.atm.model.exception.DenominationNotInitialException;
 import my.alkarps.atm.model.memento.BackupState;
 import my.alkarps.atm.model.operation.CurrentAmount;
 import my.alkarps.atm.model.operation.Empty;
+
+import java.util.function.Supplier;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -65,12 +68,15 @@ public class Cassette implements CurrentAmount, Empty, BackupState {
     }
 
     public Cassette removeBanknotes(long count) {
-        count = Math.min(count, this.count);
-        return builder().denomination(this.denomination).count(this.count - count).build();
+        return changeBanknotes(() -> this.count - Math.min(count, this.count));
     }
 
     public Cassette addBanknotes(long count) {
-        return builder().denomination(this.denomination).count(this.count + count).build();
+        return changeBanknotes(() -> this.count + count);
+    }
+
+    private Cassette changeBanknotes(Supplier<Long> supplier) {
+        return builder().denomination(this.denomination).count(supplier.get()).build();
     }
 
     public long getCount() {

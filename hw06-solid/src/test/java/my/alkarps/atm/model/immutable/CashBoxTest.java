@@ -1,5 +1,6 @@
-package my.alkarps.atm.model;
+package my.alkarps.atm.model.immutable;
 
+import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -206,7 +207,7 @@ class CashBoxTest {
     }
 
     @ParameterizedTest
-    @ValueSource(longs = {1, 123})
+    @ValueSource(longs = {1, 123, 1000_000_000})
     void removeBanknotes_whenCashBoxNotHavEnoughBanknotes_thenThrowNotEnoughBanknotesException(long amount) {
         assertThatCode(() -> cashBox.removeBanknotes(amount))
                 .isInstanceOf(NotEnoughBanknotesException.class)
