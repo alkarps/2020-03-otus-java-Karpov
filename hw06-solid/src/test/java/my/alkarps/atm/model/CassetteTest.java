@@ -107,12 +107,21 @@ class CassetteTest {
     }
 
     @Test
-    void removeBanknotes() {
+    void removeBanknotes_whenRemovingBanknotesLessCurrent_thenRemoveThisCount() {
         long removingBanknotes = 100;
         assertThat(testCassette.removeBanknotes(removingBanknotes))
                 .isNotEqualTo(testCassette)
                 .hasFieldOrPropertyWithValue("denomination", testCassette.getDenomination())
                 .hasFieldOrPropertyWithValue("count", count - removingBanknotes);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {count, count + 100})
+    void removeBanknotes_whenRemovingBanknotesMoreOrEqualCurrent_thenRemoveCurrent(long removingBanknotes) {
+        assertThat(testCassette.removeBanknotes(removingBanknotes))
+                .isNotEqualTo(testCassette)
+                .hasFieldOrPropertyWithValue("denomination", testCassette.getDenomination())
+                .hasFieldOrPropertyWithValue("count", 0L);
     }
 
     @Test

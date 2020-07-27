@@ -196,4 +196,40 @@ class CashBoxTest {
                 .hasSize(2)
                 .containsOnlyElementsOf(asList(cassetteWith500bAfter, cassetteWith100bAfter));
     }
+
+    @ParameterizedTest
+    @ValueSource(longs = {-1, 0})
+    void removeBanknotes_whenAmountIsWrong_thenThrowInvalidAmountException(long amount) {
+        assertThatCode(() -> cashBox.removeBanknotes(amount))
+                .isInstanceOf(InvalidAmountException.class)
+                .hasMessage("Некорректная сумма");
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1, 123})
+    void removeBanknotes_whenCashBoxNotHavEnoughBanknotes_thenThrowNotEnoughBanknotesException(long amount) {
+        assertThatCode(() -> cashBox.removeBanknotes(amount))
+                .isInstanceOf(NotEnoughBanknotesException.class)
+                .hasMessage("Недостаточно банкнот для выдачи средств");
+        assertThat(cashBox).isInstanceOf(CashBox.class)
+                .extracting("cassettes")
+                .asList()
+                .hasSize(2)
+                .containsOnlyElementsOf(asList(cassetteWith500b, cassetteWith100b));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {4300, 100})
+    void removeBanknotes_whenCashBoxHaveAllDenomination_thenDoNothing(long amount) {
+        long count500 = amount / 500;
+        Cassette cassetteWith500bAfter = cassetteWith500b.removeBanknotes(count500);
+        long count100 = (amount % 500) / 100;
+        Cassette cassetteWith100bAfter = cassetteWith100b.removeBanknotes(count100);
+        assertThatCode(() -> cashBox.removeBanknotes(amount)).doesNotThrowAnyException();
+        assertThat(cashBox).isInstanceOf(CashBox.class)
+                .extracting("cassettes")
+                .asList()
+                .hasSize(2)
+                .containsOnlyElementsOf(asList(cassetteWith500bAfter, cassetteWith100bAfter));
+    }
 }

@@ -1,14 +1,17 @@
 package my.alkarps.atm;
 
-import my.alkarps.atm.model.AbonentConsole;
 import my.alkarps.atm.model.CashBox;
+import my.alkarps.atm.model.CashBoxConsole;
 import my.alkarps.atm.model.exception.CashBoxIsEmptyException;
 
 /**
+ * В данный момент является проксей для кассы.
+ * При добавлении валюты - тут будет проще всего реализована логику выбора валютной кассы.
+ *
  * @author alkarps
  * create date 22.07.2020 12:38
  */
-public class Atm implements AbonentConsole {
+public class Atm implements CashBoxConsole {
     private final CashBox cashBox;
 
     private Atm(CashBox cashBox) {
@@ -27,6 +30,11 @@ public class Atm implements AbonentConsole {
     @Override
     public void addBanknotes(long amount) {
         cashBox.addBanknotes(amount);
+    }
+
+    @Override
+    public void removeBanknotes(long amount) {
+
     }
 
     public static class Builder {

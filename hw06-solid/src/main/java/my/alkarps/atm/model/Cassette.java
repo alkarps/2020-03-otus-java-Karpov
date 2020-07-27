@@ -64,12 +64,13 @@ public class Cassette implements CurrentAmount, Empty, BackupState {
         return this.denomination;
     }
 
-    public Cassette removeBanknotes(long amount) {
-        return builder().denomination(this.denomination).count(this.count - amount).build();
+    public Cassette removeBanknotes(long count) {
+        count = Math.min(count, this.count);
+        return builder().denomination(this.denomination).count(this.count - count).build();
     }
 
-    public Cassette addBanknotes(long amount) {
-        return builder().denomination(this.denomination).count(this.count + amount).build();
+    public Cassette addBanknotes(long count) {
+        return builder().denomination(this.denomination).count(this.count + count).build();
     }
 
     public long getCount() {

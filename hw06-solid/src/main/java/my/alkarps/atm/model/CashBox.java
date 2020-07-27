@@ -3,8 +3,6 @@ package my.alkarps.atm.model;
 import my.alkarps.atm.model.exception.*;
 import my.alkarps.atm.model.memento.BackupState;
 import my.alkarps.atm.model.memento.RestoreState;
-import my.alkarps.atm.model.operation.AddBanknotes;
-import my.alkarps.atm.model.operation.CurrentAmount;
 import my.alkarps.atm.model.operation.Empty;
 
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * @author alkarps
  * create date 22.07.2020 14:35
  */
-public class CashBox implements CurrentAmount, Empty, BackupState, RestoreState, AddBanknotes {
+public class CashBox implements CashBoxConsole, Empty, BackupState, RestoreState {
     private static final String DELIMITER = ";";
     private List<Cassette> cassettes;
 
@@ -77,6 +75,26 @@ public class CashBox implements CurrentAmount, Empty, BackupState, RestoreState,
             }
             if (amount != 0) {
                 throw new UnknownDenominationException();
+            }
+            updateCassettesWithSort(_cassettes);
+        } else {
+            throw new InvalidAmountException();
+        }
+    }
+
+    @Override
+    public void removeBanknotes(long amount) {
+        if (amount > 0) {
+            List<Cassette> _cassettes = new ArrayList<>();
+            for (Cassette cassette : cassettes) {
+                long banknotes = amount / cassette.getDenomination().getAmount();
+                Cassette newState = cassette.removeBanknotes(banknotes);
+                long removingBanknotes = cassette.getCount() - newState.getCount();
+                _cassettes.add(newState);
+                amount = amount - (removingBanknotes * cassette.getDenomination().getAmount());
+            }
+            if (amount != 0) {
+                throw new NotEnoughBanknotesException();
             }
             updateCassettesWithSort(_cassettes);
         } else {
