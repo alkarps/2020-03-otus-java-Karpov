@@ -5,6 +5,7 @@ import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.CassetteStateIsWrongException;
 import my.alkarps.atm.model.exception.DenominationNotInitialException;
 import my.alkarps.atm.model.memento.BackupState;
+import my.alkarps.atm.model.operation.Clone;
 import my.alkarps.atm.model.operation.CurrentAmount;
 import my.alkarps.atm.model.operation.Empty;
 
@@ -18,7 +19,7 @@ import static my.alkarps.atm.util.Utils.throwExceptionIfTrue;
  * create date 22.07.2020 13:52
  */
 @EqualsAndHashCode
-public class Cassette implements CurrentAmount, Empty, BackupState {
+public class Cassette implements CurrentAmount, Empty, BackupState, Clone<Cassette> {
     private static final String DELIMITER = ":";
     private final Denomination denomination;
     private final long count;
@@ -60,6 +61,11 @@ public class Cassette implements CurrentAmount, Empty, BackupState {
     @Override
     public String backup() {
         return denomination.name() + DELIMITER + count;
+    }
+
+    @Override
+    public Cassette cloneThis() {
+        return new Cassette(this.denomination, this.count);
     }
 
     public Denomination getDenomination() {

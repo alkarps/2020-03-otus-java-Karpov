@@ -115,8 +115,7 @@ public class CashBox implements CashBoxOperation, BackupState, RestoreState {
 
         public Builder addCassettes(Cassette cassette) {
             throwExceptionIfTrue(Utils.isNullOrEmpty(cassette), CassetteIsEmptyException::new);
-            //TODO проверить на необходимость копирования
-            this.cassettes.add(cassette);
+            this.cassettes.add(cassette.cloneThis());
             return this;
         }
 
