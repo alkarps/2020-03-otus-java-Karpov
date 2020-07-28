@@ -39,7 +39,7 @@ public class Atm implements UserOperation {
     }
 
     @Override
-    public long removeBanknotes(long amount) {
+    public Map<Denomination, Long> removeBanknotes(long amount) {
         return cashBox.removeBanknotes(amount);
     }
 

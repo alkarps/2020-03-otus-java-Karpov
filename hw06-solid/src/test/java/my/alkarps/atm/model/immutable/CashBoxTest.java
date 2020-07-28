@@ -218,34 +218,34 @@ class CashBoxTest {
 
     private static Stream<Arguments> banknotesWithUnknownDenominationForAdd() {
         return Stream.of(
-                Arguments.of(createBanknotesForAdd(Denomination.b1, 100L)),
-                Arguments.of(createBanknotesForAdd(Denomination.b2, 10L)),
-                Arguments.of(createBanknotesWithTwoParamsForAdd(createBanknotesForAdd(Denomination.b100, 100L), Denomination.b2, 1L))
+                Arguments.of(createBanknotes(Denomination.b1, 100L)),
+                Arguments.of(createBanknotes(Denomination.b2, 10L)),
+                Arguments.of(addBanknotesWithNewDenomination(createBanknotes(Denomination.b100, 100L), Denomination.b2, 1L))
         );
     }
 
     private static Stream<Arguments> banknotesWithIncorrectCountForAdd() {
         return Stream.of(
-                Arguments.of(createBanknotesForAdd(Denomination.b100, null)),
-                Arguments.of(createBanknotesForAdd(Denomination.b500, -10L))
+                Arguments.of(createBanknotes(Denomination.b100, null)),
+                Arguments.of(createBanknotes(Denomination.b500, -10L))
         );
     }
 
     private static Stream<Arguments> banknotesWithKnownDenominationForAdd() {
         return Stream.of(
-                Arguments.of(createBanknotesForAdd(Denomination.b100, 100L)),
-                Arguments.of(createBanknotesForAdd(Denomination.b500, 10L)),
-                Arguments.of(createBanknotesWithTwoParamsForAdd(createBanknotesForAdd(Denomination.b100, 100L), Denomination.b500, 3L))
+                Arguments.of(createBanknotes(Denomination.b100, 100L)),
+                Arguments.of(createBanknotes(Denomination.b500, 10L)),
+                Arguments.of(addBanknotesWithNewDenomination(createBanknotes(Denomination.b100, 100L), Denomination.b500, 3L))
         );
     }
 
-    private static Map<Denomination, Long> createBanknotesForAdd(Denomination key, Long value) {
+    private static Map<Denomination, Long> createBanknotes(Denomination key, Long value) {
         Map<Denomination, Long> banknotes = new HashMap<>();
         banknotes.put(key, value);
         return banknotes;
     }
 
-    private static Map<Denomination, Long> createBanknotesWithTwoParamsForAdd(Map<Denomination, Long> banknotes, Denomination newKey, Long newValue) {
+    private static Map<Denomination, Long> addBanknotesWithNewDenomination(Map<Denomination, Long> banknotes, Denomination newKey, Long newValue) {
         banknotes.put(newKey, newValue);
         return banknotes;
     }
@@ -273,16 +273,32 @@ class CashBoxTest {
 
     @ParameterizedTest
     @ValueSource(longs = {4300, 100})
-    void removeBanknotes_whenCashBoxHaveAllDenomination_thenDoNothing(long amount) {
-        long count500 = amount / 500;
-        Cassette cassetteWith500bAfter = cassetteWith500b.removeBanknotes(count500);
-        long count100 = (amount % 500) / 100;
-        Cassette cassetteWith100bAfter = cassetteWith100b.removeBanknotes(count100);
-        assertThat(cashBox.removeBanknotes(amount)).isEqualTo(count100 + count500);
+    void removeBanknotes_whenCashBoxHaveAllDenomination_thenReturnBanknotes(long amount) {
+        Map<Denomination, Long> returningBanknotes = new HashMap<>();
+        Cassette new500bState = returnNewCassetteStateAndUpdateReturningBanknotes(cassetteWith500b, returningBanknotes, amount / 500);
+        Cassette new100bState = returnNewCassetteStateAndUpdateReturningBanknotes(cassetteWith100b, returningBanknotes, (amount % 500) / 100);
+        assertThat(cashBox.removeBanknotes(amount)).isEqualTo(returningBanknotes);
         assertThat(cashBox).isInstanceOf(CashBox.class)
                 .extracting("cassettes")
                 .asList()
                 .hasSize(2)
-                .containsOnlyElementsOf(asList(cassetteWith500bAfter, cassetteWith100bAfter));
+                .containsOnlyElementsOf(asList(new500bState, new100bState));
+    }
+
+    private Cassette returnNewCassetteStateAndUpdateReturningBanknotes(Cassette oldState, Map<Denomination, Long> returningBanknotes, long count) {
+        Cassette newState = removeBanknotes(oldState, count);
+        updateReturningBanknotesIfChangeCassette(oldState, newState, returningBanknotes);
+        return newState;
+    }
+
+    private Cassette removeBanknotes(Cassette cassette, long count) {
+        return cassette.removeBanknotes(count);
+    }
+
+    private void updateReturningBanknotesIfChangeCassette(Cassette oldState, Cassette newState, Map<Denomination, Long> returningBanknotes) {
+        long count = oldState.getCount() - newState.getCount();
+        if (count != 0) {
+            returningBanknotes.put(oldState.getDenomination(), count);
+        }
     }
 }

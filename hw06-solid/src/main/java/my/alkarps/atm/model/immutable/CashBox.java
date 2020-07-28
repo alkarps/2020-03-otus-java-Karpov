@@ -8,6 +8,7 @@ import my.alkarps.atm.model.operation.CashBoxOperation;
 import my.alkarps.atm.util.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -85,22 +86,24 @@ public class CashBox implements CashBoxOperation, BackupState, RestoreState {
     }
 
     @Override
-    public long removeBanknotes(long amount) {
+    public Map<Denomination, Long> removeBanknotes(long amount) {
         throwExceptionIfTrue(amount <= 0, InvalidAmountException::new);
-        List<Cassette> _cassettes = new ArrayList<>();
-        long removingBanknotes = 0L;
+        List<Cassette> newCashBoxState = new ArrayList<>();
+        Map<Denomination, Long> removingBanknotes = new HashMap<>();
         if (amount <= getCurrentAmount()) {
             for (Cassette cassette : cassettes) {
                 long banknotes = amount / cassette.getDenomination().getAmount();
                 Cassette newState = cassette.removeBanknotes(banknotes);
-                long _removingBanknotes = cassette.getCount() - newState.getCount();
-                removingBanknotes += _removingBanknotes;
-                _cassettes.add(newState);
-                amount = amount - (_removingBanknotes * cassette.getDenomination().getAmount());
+                long removedBanknotes = cassette.getCount() - newState.getCount();
+                newCashBoxState.add(newState);
+                amount = amount - (removedBanknotes * cassette.getDenomination().getAmount());
+                if (removedBanknotes > 0) {
+                    removingBanknotes.put(cassette.getDenomination(), removedBanknotes);
+                }
             }
         }
         throwExceptionIfTrue(amount != 0, NotEnoughBanknotesException::new);
-        updateCassettesWithSort(_cassettes);
+        updateCassettesWithSort(newCashBoxState);
         return removingBanknotes;
     }
 
