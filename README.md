@@ -9,6 +9,10 @@ email: alserkarpov@gmail.com<br/>
 ###1. Gradle
 Домашняя работа по знакомству с gradle находится в ./hw01-gradle. [Описание домашней работы](hw01-gradle/README.md)
 
+###6. SOLID
+Домашняя работа по паттернами проектирования и принципом SOLID находится в ./hw06-solid. [Описание домашней работы](hw06-solid/README.md)
+
+
 License
 ----
 
