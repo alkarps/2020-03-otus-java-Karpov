@@ -28,6 +28,7 @@ allprojects {
                 mavenBom("org.springframework.boot:spring-boot-dependencies:${Versions.springBoot}")
             }
             dependency("com.google.guava:guava:${Versions.guava}")
+            dependency("org.glassfish:javax.json:${Versions.glassfishJson}")
         }
     }
 }
