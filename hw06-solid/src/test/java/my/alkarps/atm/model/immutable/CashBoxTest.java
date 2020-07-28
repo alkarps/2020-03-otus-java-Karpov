@@ -5,11 +5,10 @@ import my.alkarps.atm.model.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -163,17 +162,17 @@ class CashBoxTest {
     }
 
     @ParameterizedTest
-    @ValueSource(longs = {-1, 0})
-    void addBanknotes_whenAmountIsWrong_thenThrowInvalidAmountException(long amount) {
-        assertThatCode(() -> cashBox.addBanknotes(amount))
-                .isInstanceOf(InvalidAmountException.class)
-                .hasMessage("Некорректная сумма");
+    @NullSource
+    @MethodSource("emptyMapWithBanknotes")
+    void addBanknotes_whenAmountIsWrong_thenThrowInvalidAmountException(Map<Denomination, Long> banknotes) {
+        assertThatCode(() -> cashBox.addBanknotes(banknotes))
+                .doesNotThrowAnyException();
     }
 
     @ParameterizedTest
-    @ValueSource(longs = {1, 123})
-    void addBanknotes_whenCashBoxNotHaveDenomination_thenThrowUnknownDenominationException(long amount) {
-        assertThatCode(() -> cashBox.addBanknotes(amount))
+    @MethodSource("banknotesWithUnknownDenominationForAdd")
+    void addBanknotes_whenCashBoxNotHaveDenomination_thenThrowUnknownDenominationException(Map<Denomination, Long> banknotes) {
+        assertThatCode(() -> cashBox.addBanknotes(banknotes))
                 .isInstanceOf(UnknownDenominationException.class)
                 .hasMessage("Получены нераспознанные банкноты.");
         assertThat(cashBox).isInstanceOf(CashBox.class)
@@ -184,18 +183,71 @@ class CashBoxTest {
     }
 
     @ParameterizedTest
-    @ValueSource(longs = {4300, 100})
-    void addBanknotes_whenCashBoxHaveAllDenomination_thenDoNothing(long amount) {
-        long count500 = amount / 500;
-        Cassette cassetteWith500bAfter = cassetteWith500b.addBanknotes(count500);
-        long count100 = (amount % 500) / 100;
-        Cassette cassetteWith100bAfter = cassetteWith100b.addBanknotes(count100);
-        assertThatCode(() -> cashBox.addBanknotes(amount)).doesNotThrowAnyException();
+    @MethodSource("banknotesWithKnownDenominationForAdd")
+    void addBanknotes_whenCashBoxHaveAllDenomination_thenDoNothing(Map<Denomination, Long> banknotes) {
+        Cassette cassetteWith500bAfter = addBanknotesInCassette(cassetteWith500b, banknotes);
+        Cassette cassetteWith100bAfter = addBanknotesInCassette(cassetteWith100b, banknotes);
+        assertThatCode(() -> cashBox.addBanknotes(banknotes)).doesNotThrowAnyException();
         assertThat(cashBox).isInstanceOf(CashBox.class)
                 .extracting("cassettes")
                 .asList()
                 .hasSize(2)
                 .containsOnlyElementsOf(asList(cassetteWith500bAfter, cassetteWith100bAfter));
+    }
+
+    @ParameterizedTest
+    @MethodSource("banknotesWithIncorrectCountForAdd")
+    void addBanknotes_whenCountIsNullOrLessZero_thenThrowInvalidBanknotesCountException(Map<Denomination, Long> banknotes) {
+        assertThatCode(() -> cashBox.addBanknotes(banknotes))
+                .isInstanceOf(InvalidBanknotesCountException.class)
+                .hasMessage("Некорректное количество банкнот");
+        assertThat(cashBox).isInstanceOf(CashBox.class)
+                .extracting("cassettes")
+                .asList()
+                .hasSize(2)
+                .containsOnlyElementsOf(asList(cassetteWith500b, cassetteWith100b));
+    }
+
+    private Cassette addBanknotesInCassette(Cassette cassette, Map<Denomination, Long> banknotes) {
+        return cassette.addBanknotes(banknotes.getOrDefault(cassette.getDenomination(), 0L));
+    }
+
+    private static Stream<Arguments> emptyMapWithBanknotes() {
+        return Stream.of(Arguments.of(new HashMap<Denomination, Long>()));
+    }
+
+    private static Stream<Arguments> banknotesWithUnknownDenominationForAdd() {
+        return Stream.of(
+                Arguments.of(createBanknotesForAdd(Denomination.b1, 100L)),
+                Arguments.of(createBanknotesForAdd(Denomination.b2, 10L)),
+                Arguments.of(createBanknotesWithTwoParamsForAdd(createBanknotesForAdd(Denomination.b100, 100L), Denomination.b2, 1L))
+        );
+    }
+
+    private static Stream<Arguments> banknotesWithIncorrectCountForAdd() {
+        return Stream.of(
+                Arguments.of(createBanknotesForAdd(Denomination.b100, null)),
+                Arguments.of(createBanknotesForAdd(Denomination.b500, -10L))
+        );
+    }
+
+    private static Stream<Arguments> banknotesWithKnownDenominationForAdd() {
+        return Stream.of(
+                Arguments.of(createBanknotesForAdd(Denomination.b100, 100L)),
+                Arguments.of(createBanknotesForAdd(Denomination.b500, 10L)),
+                Arguments.of(createBanknotesWithTwoParamsForAdd(createBanknotesForAdd(Denomination.b100, 100L), Denomination.b500, 3L))
+        );
+    }
+
+    private static Map<Denomination, Long> createBanknotesForAdd(Denomination key, Long value) {
+        Map<Denomination, Long> banknotes = new HashMap<>();
+        banknotes.put(key, value);
+        return banknotes;
+    }
+
+    private static Map<Denomination, Long> createBanknotesWithTwoParamsForAdd(Map<Denomination, Long> banknotes, Denomination newKey, Long newValue) {
+        banknotes.put(newKey, newValue);
+        return banknotes;
     }
 
     @ParameterizedTest

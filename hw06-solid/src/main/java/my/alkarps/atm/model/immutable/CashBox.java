@@ -1,16 +1,20 @@
 package my.alkarps.atm.model.immutable;
 
+import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.*;
 import my.alkarps.atm.model.memento.BackupState;
 import my.alkarps.atm.model.memento.RestoreState;
 import my.alkarps.atm.model.operation.CashBoxOperation;
+import my.alkarps.atm.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static my.alkarps.atm.util.Utils.throwExceptionIfTrue;
 
 /**
  * Реализация кассы на основе иммутабельной кассеты.
@@ -53,9 +57,8 @@ public class CashBox implements CashBoxOperation, BackupState, RestoreState {
 
     @Override
     public void restore(String restoringState) {
-        if (isNullOrEmpty(restoringState) || restoringState.isBlank()) {
-            throw new CashBoxStateIsWrongException();
-        }
+        throwExceptionIfTrue(isNullOrEmpty(restoringState) || restoringState.isBlank(),
+                CashBoxStateIsWrongException::new);
         this.cassettes = Stream.of(restoringState.split(DELIMITER))
                 .map(Cassette::restore)
                 .sorted(Cassette::compare)
@@ -67,46 +70,38 @@ public class CashBox implements CashBoxOperation, BackupState, RestoreState {
     }
 
     @Override
-    public void addBanknotes(long amount) {
-        if (amount > 0) {
+    public void addBanknotes(Map<Denomination, Long> banknotes) {
+        if (banknotes != null && !banknotes.isEmpty()) {
             List<Cassette> _cassettes = new ArrayList<>();
             for (Cassette cassette : cassettes) {
-                long banknotes = amount / cassette.getDenomination().getAmount();
-                _cassettes.add(cassette.addBanknotes(banknotes));
-                amount = amount - (banknotes * cassette.getDenomination().getAmount());
+                Long _banknotes = banknotes.getOrDefault(cassette.getDenomination(), 0L);
+                throwExceptionIfTrue(_banknotes == null || _banknotes < 0, InvalidBanknotesCountException::new);
+                _cassettes.add(cassette.addBanknotes(_banknotes));
+                banknotes.remove(cassette.getDenomination());
             }
-            if (amount != 0) {
-                throw new UnknownDenominationException();
-            }
+            throwExceptionIfTrue(!banknotes.isEmpty(), UnknownDenominationException::new);
             updateCassettesWithSort(_cassettes);
-        } else {
-            throw new InvalidAmountException();
         }
     }
 
     @Override
     public long removeBanknotes(long amount) {
-        if (amount > 0) {
-            List<Cassette> _cassettes = new ArrayList<>();
-            long removingBanknotes = 0L;
-            if (amount <= getCurrentAmount()) {
-                for (Cassette cassette : cassettes) {
-                    long banknotes = amount / cassette.getDenomination().getAmount();
-                    Cassette newState = cassette.removeBanknotes(banknotes);
-                    long _removingBanknotes = cassette.getCount() - newState.getCount();
-                    removingBanknotes += _removingBanknotes;
-                    _cassettes.add(newState);
-                    amount = amount - (_removingBanknotes * cassette.getDenomination().getAmount());
-                }
+        throwExceptionIfTrue(amount <= 0, InvalidAmountException::new);
+        List<Cassette> _cassettes = new ArrayList<>();
+        long removingBanknotes = 0L;
+        if (amount <= getCurrentAmount()) {
+            for (Cassette cassette : cassettes) {
+                long banknotes = amount / cassette.getDenomination().getAmount();
+                Cassette newState = cassette.removeBanknotes(banknotes);
+                long _removingBanknotes = cassette.getCount() - newState.getCount();
+                removingBanknotes += _removingBanknotes;
+                _cassettes.add(newState);
+                amount = amount - (_removingBanknotes * cassette.getDenomination().getAmount());
             }
-            if (amount != 0) {
-                throw new NotEnoughBanknotesException();
-            }
-            updateCassettesWithSort(_cassettes);
-            return removingBanknotes;
-        } else {
-            throw new InvalidAmountException();
         }
+        throwExceptionIfTrue(amount != 0, NotEnoughBanknotesException::new);
+        updateCassettesWithSort(_cassettes);
+        return removingBanknotes;
     }
 
     public static class Builder {
@@ -116,18 +111,14 @@ public class CashBox implements CashBoxOperation, BackupState, RestoreState {
         }
 
         public Builder addCassettes(Cassette cassette) {
-            if (cassette == null || cassette.isEmpty()) {
-                throw new CassetteIsEmptyException();
-            }
+            throwExceptionIfTrue(Utils.isNullOrEmpty(cassette), CassetteIsEmptyException::new);
             //TODO проверить на необходимость копирования
             this.cassettes.add(cassette);
             return this;
         }
 
         public CashBox build() {
-            if (cassettes.isEmpty()) {
-                throw new CashBoxIsEmptyException();
-            }
+            throwExceptionIfTrue(cassettes.isEmpty(), CashBoxIsEmptyException::new);
             return new CashBox(cassettes);
         }
     }

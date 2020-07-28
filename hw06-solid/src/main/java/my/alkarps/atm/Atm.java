@@ -1,8 +1,14 @@
 package my.alkarps.atm;
 
+import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.CashBoxIsEmptyException;
 import my.alkarps.atm.model.operation.CashBoxOperation;
 import my.alkarps.atm.model.operation.UserOperation;
+
+import java.util.Map;
+
+import static my.alkarps.atm.util.Utils.isNullOrEmpty;
+import static my.alkarps.atm.util.Utils.throwExceptionIfTrue;
 
 /**
  * В данный момент является проксей для кассы.
@@ -28,8 +34,8 @@ public class Atm implements UserOperation {
     }
 
     @Override
-    public void addBanknotes(long amount) {
-        cashBox.addBanknotes(amount);
+    public void addBanknotes(Map<Denomination, Long> banknotes) {
+        cashBox.addBanknotes(banknotes);
     }
 
     @Override
@@ -49,9 +55,7 @@ public class Atm implements UserOperation {
         }
 
         public Atm build() {
-            if (cashBox == null || cashBox.isEmpty()) {
-                throw new CashBoxIsEmptyException();
-            }
+            throwExceptionIfTrue(isNullOrEmpty(cashBox), CashBoxIsEmptyException::new);
             return new Atm(cashBox);
         }
     }

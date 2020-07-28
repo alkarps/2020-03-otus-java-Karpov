@@ -11,6 +11,7 @@ import my.alkarps.atm.model.operation.Empty;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static my.alkarps.atm.util.Utils.throwExceptionIfTrue;
 
 /**
  * @author alkarps
@@ -43,9 +44,7 @@ public class Cassette implements CurrentAmount, Empty, BackupState {
     }
 
     private void throwIfNotValidState(boolean check) {
-        if (check) {
-            throw new CassetteStateIsWrongException();
-        }
+        throwExceptionIfTrue(check, CassetteStateIsWrongException::new);
     }
 
     @Override
@@ -117,9 +116,7 @@ public class Cassette implements CurrentAmount, Empty, BackupState {
         }
 
         public Cassette build() {
-            if (denomination == null) {
-                throw new DenominationNotInitialException();
-            }
+            throwExceptionIfTrue(denomination == null, DenominationNotInitialException::new);
             return new Cassette(denomination, count);
         }
     }
