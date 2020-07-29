@@ -9,9 +9,11 @@ email: alserkarpov@gmail.com<br/>
 ###1. Gradle
 Домашняя работа по знакомству с gradle находится в ./hw01-gradle. [Описание домашней работы](hw01-gradle/README.md)
 
+###2. Collections
+Домашняя работа по знакомству с java collections находится в ./hw02-collections. [Описание домашней работы](hw02-collections/README.md)
+
 ###3. Reflection
 Домашняя работа для изучения механизма рефлексии на примере реализации самодельного тестового фреймворка находится в ./hw03-reflection. [Описание домашней работы](hw03-reflection/README.md)
-
 
 License
 ----
