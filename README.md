@@ -21,6 +21,9 @@ email: alserkarpov@gmail.com<br/>
 ###7. Structural patterns
 Домашняя работа по паттернам проектирования и принципом SOLID на примере АТМ (департамент) находится в ./hw06-solid. [Описание домашней работы](hw06-solid/README.md)
 
+###9. JDBC
+Домашняя работа по разработке самодельного ORM в ./hw09-jdbc. [Описание домашней работы](hw09-jdbc/README.md)
+
 License
 ----
 
