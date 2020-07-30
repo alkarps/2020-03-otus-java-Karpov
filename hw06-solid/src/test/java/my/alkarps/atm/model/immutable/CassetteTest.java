@@ -3,7 +3,6 @@ package my.alkarps.atm.model.immutable;
 import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.CassetteStateIsWrongException;
 import my.alkarps.atm.model.exception.DenominationNotInitialException;
-import my.alkarps.atm.model.immutable.Cassette;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
