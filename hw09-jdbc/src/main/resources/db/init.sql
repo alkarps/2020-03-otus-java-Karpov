@@ -1,0 +1,1 @@
+create table if not exists user(id long auto_increment, name varchar(50));

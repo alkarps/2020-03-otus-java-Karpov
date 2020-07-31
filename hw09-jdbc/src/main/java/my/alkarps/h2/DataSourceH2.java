@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  * created on 03.02.19.
  */
 public class DataSourceH2 implements DataSource {
-    private static final String URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1";
+    private static final String URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:db/init.sql'";
 
     @Override
     public Connection getConnection() throws SQLException {
@@ -34,7 +34,6 @@ public class DataSourceH2 implements DataSource {
     @Override
     public void setLogWriter(PrintWriter out) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override

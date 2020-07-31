@@ -22,9 +22,6 @@ public class DbServiceDemo {
 
     public static void main(String[] args) throws Exception {
         var dataSource = new DataSourceH2();
-        var demo = new DbServiceDemo();
-
-        demo.createTable(dataSource);
 
         var sessionManager = new SessionManagerJdbc(dataSource);
         DbExecutorImpl<User> dbExecutor = new DbExecutorImpl<>();
@@ -39,13 +36,5 @@ public class DbServiceDemo {
                 () -> logger.info("user was not created")
         );
 
-    }
-
-    private void createTable(DataSource dataSource) throws SQLException {
-        try (var connection = dataSource.getConnection();
-             var pst = connection.prepareStatement("create table user(id long auto_increment, name varchar(50))")) {
-            pst.executeUpdate();
-        }
-        System.out.println("table created");
     }
 }
