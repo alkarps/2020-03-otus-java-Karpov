@@ -6,20 +6,23 @@ email: alserkarpov@gmail.com<br/>
 
 ##Домашние работы
 
-###1. Gradle
+###01. Gradle
 Домашняя работа по знакомству с gradle находится в ./hw01-gradle. [Описание домашней работы](hw01-gradle/README.md)
 
-###2. Collections
+###02. Collections
 Домашняя работа по знакомству с java collections находится в ./hw02-collections. [Описание домашней работы](hw02-collections/README.md)
 
-###3. Reflection
+###03. Reflection
 Домашняя работа для изучения механизма рефлексии на примере реализации самодельного тестового фреймворка находится в ./hw03-reflection. [Описание домашней работы](hw03-reflection/README.md)
 
-###6. SOLID
+###06. SOLID
 Домашняя работа по паттернам проектирования и принципом SOLID на примере АТМ (банкомат) находится в ./hw06-solid. [Описание домашней работы](hw06-solid/README.md)
 
-###7. Structural patterns
+###07. Structural patterns
 Домашняя работа по паттернам проектирования и принципом SOLID на примере АТМ (департамент) находится в ./hw06-solid. [Описание домашней работы](hw06-solid/README.md)
+
+###10. Hibernate
+Домашняя работа по знакомству с hibernate находится в ./hw10-hibernate. [Описание домашней работы](hw10-hibernate/README.md)
 
 License
 ----
