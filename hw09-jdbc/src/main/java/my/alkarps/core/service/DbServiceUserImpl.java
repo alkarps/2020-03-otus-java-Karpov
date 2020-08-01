@@ -31,6 +31,10 @@ public class DbServiceUserImpl implements DBServiceUser {
                 sessionManager.rollbackSession();
                 throw new DbServiceException(e);
             }
+        } catch (DbServiceException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new DbServiceException(ex);
         }
     }
 
@@ -48,6 +52,9 @@ public class DbServiceUserImpl implements DBServiceUser {
                 sessionManager.rollbackSession();
             }
             return Optional.empty();
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            throw new DbServiceException(ex);
         }
     }
 }
