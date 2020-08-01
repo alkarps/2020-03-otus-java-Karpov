@@ -33,7 +33,7 @@ class DbServiceUserImplTest {
     @Test
     void saveUser_whenAllOk_thenReturnId() {
         long id = 1;
-        User user = new User(0L, "test");
+        User user = createTestUser(0L);
 
         doNothing().when(sessionManager).beginSession();
         doNothing().when(sessionManager).commitSession();
@@ -55,9 +55,16 @@ class DbServiceUserImplTest {
         verify(sessionManager, never()).rollbackSession();
     }
 
+    private User createTestUser(long id) {
+        User user = new User();
+        user.setId(id);
+        user.setName("test");
+        return user;
+    }
+
     @Test
     void saveUser_whenCatchExceptionWhileInsert_thenThrowDbServiceExceptionAndRollback() {
-        User user = new User(0L, "test");
+        User user = createTestUser(0L);
 
         doNothing().when(sessionManager).beginSession();
         doNothing().when(sessionManager).commitSession();
@@ -82,7 +89,7 @@ class DbServiceUserImplTest {
 
     @Test
     void saveUser_whenDaoReturnNullSessionManager_thenThrowDbServiceException() {
-        User user = new User(0L, "test");
+        User user = createTestUser(0L);
 
         doReturn(null).when(userDao).getSessionManager();
 
@@ -105,7 +112,7 @@ class DbServiceUserImplTest {
     @Test
     void getUser_whenFoundUserById_thenReturnUser() {
         long id = 1;
-        User user = new User(1L, "test");
+        User user = createTestUser(id);
 
         doNothing().when(sessionManager).beginSession();
         doNothing().when(sessionManager).commitSession();

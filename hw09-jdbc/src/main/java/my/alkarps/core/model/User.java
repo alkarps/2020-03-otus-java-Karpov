@@ -8,13 +8,11 @@ import my.alkarps.jdbc.mapper.annotation.Id;
  * created on 03.02.19.
  */
 @Getter
-@RequiredArgsConstructor
-@AllArgsConstructor
+@Setter
 @ToString
 public class User {
     @Id
-    private final long id;
-    private final String name;
-    @Setter
+    private long id;
+    private String name;
     private int age;
 }
