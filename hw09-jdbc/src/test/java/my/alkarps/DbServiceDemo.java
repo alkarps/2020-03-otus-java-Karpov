@@ -4,8 +4,9 @@ import my.alkarps.core.model.User;
 import my.alkarps.core.service.DBServiceUser;
 import my.alkarps.core.service.DbServiceUserImpl;
 import my.alkarps.h2.DataSourceH2;
-import my.alkarps.jdbc.executor.DbExecutorImpl;
 import my.alkarps.jdbc.dao.UserDaoJdbcExecutor;
+import my.alkarps.jdbc.executor.DbExecutor;
+import my.alkarps.jdbc.executor.DbExecutorImpl;
 import my.alkarps.jdbc.sessionmanager.SessionManagerJdbc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ public class DbServiceDemo {
     public void setUp() {
         var dataSource = new DataSourceH2();
         var sessionManager = new SessionManagerJdbc(dataSource);
-        DbExecutorImpl<User> dbExecutor = new DbExecutorImpl<>();
+        DbExecutor<User> dbExecutor = new DbExecutorImpl<>();
         var userDao = new UserDaoJdbcExecutor(sessionManager, dbExecutor);
         dbServiceUser = new DbServiceUserImpl(userDao);
     }
