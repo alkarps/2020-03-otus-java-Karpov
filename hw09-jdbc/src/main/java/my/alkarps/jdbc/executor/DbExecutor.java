@@ -1,4 +1,4 @@
-package my.alkarps.jdbc;
+package my.alkarps.jdbc.executor;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

@@ -4,7 +4,7 @@ import my.alkarps.core.dao.UserDao;
 import my.alkarps.core.dao.UserDaoException;
 import my.alkarps.core.model.User;
 import my.alkarps.core.sessionmanager.SessionManager;
-import my.alkarps.jdbc.DbExecutorImpl;
+import my.alkarps.jdbc.executor.DbExecutorImpl;
 import my.alkarps.jdbc.sessionmanager.SessionManagerJdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +14,13 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Optional;
 
-public class UserDaoJdbc implements UserDao {
-    private static final Logger logger = LoggerFactory.getLogger(UserDaoJdbc.class);
+public class UserDaoJdbcExecutor implements UserDao {
+    private static final Logger logger = LoggerFactory.getLogger(UserDaoJdbcExecutor.class);
 
     private final SessionManagerJdbc sessionManager;
     private final DbExecutorImpl<User> dbExecutor;
 
-    public UserDaoJdbc(SessionManagerJdbc sessionManager, DbExecutorImpl<User> dbExecutor) {
+    public UserDaoJdbcExecutor(SessionManagerJdbc sessionManager, DbExecutorImpl<User> dbExecutor) {
         this.sessionManager = sessionManager;
         this.dbExecutor = dbExecutor;
     }
