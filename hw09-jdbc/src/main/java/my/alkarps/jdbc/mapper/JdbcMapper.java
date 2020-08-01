@@ -1,11 +1,13 @@
 package my.alkarps.jdbc.mapper;
 
+import java.util.Optional;
+
 public interface JdbcMapper<T> {
-    void insert(T objectData);
+    long insert(T objectData);
 
     void update(T objectData);
 
-    void insertOrUpdate(T objectData);
+    long insertOrUpdate(T objectData);
 
-    T findById(long id, Class<T> clazz);
+    Optional<T> findById(long id, Class<T> clazz);
 }

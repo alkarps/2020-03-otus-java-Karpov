@@ -12,7 +12,7 @@ public interface UserDao {
 
     void updateUser(User user);
 
-    void insertOrUpdate(User user);
+    long insertOrUpdate(User user);
 
     SessionManager getSessionManager();
 }

@@ -35,6 +35,21 @@ public class DbExecutorImpl<T> implements DbExecutor<T> {
     }
 
     @Override
+    public long executeUpdate(Connection connection, String sql, List<Object> params) throws SQLException {
+        Savepoint savePoint = connection.setSavepoint("savePointName");
+        try (var pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            for (int idx = 0; idx < params.size(); idx++) {
+                pst.setObject(idx + 1, params.get(idx));
+            }
+            return pst.executeUpdate();
+        } catch (SQLException ex) {
+            connection.rollback(savePoint);
+            logger.error(ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    @Override
     public Optional<T> executeSelect(Connection connection, String sql, long id,
                                      Function<ResultSet, T> rsHandler) throws SQLException {
         try (var pst = connection.prepareStatement(sql)) {

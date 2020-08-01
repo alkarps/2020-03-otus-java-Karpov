@@ -4,41 +4,28 @@ import my.alkarps.core.dao.UserDao;
 import my.alkarps.core.dao.UserDaoException;
 import my.alkarps.core.model.User;
 import my.alkarps.core.sessionmanager.SessionManager;
-import my.alkarps.jdbc.executor.DbExecutor;
+import my.alkarps.jdbc.mapper.JdbcMapper;
 import my.alkarps.jdbc.sessionmanager.SessionManagerJdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Optional;
 
 public class UserDaoJdbcExecutor implements UserDao {
     private static final Logger logger = LoggerFactory.getLogger(UserDaoJdbcExecutor.class);
 
     private final SessionManagerJdbc sessionManager;
-    private final DbExecutor<User> dbExecutor;
+    private final JdbcMapper<User> jdbcMapper;
 
-    public UserDaoJdbcExecutor(SessionManagerJdbc sessionManager, DbExecutor<User> dbExecutor) {
+    public UserDaoJdbcExecutor(SessionManagerJdbc sessionManager, JdbcMapper<User> jdbcMapper) {
         this.sessionManager = sessionManager;
-        this.dbExecutor = dbExecutor;
+        this.jdbcMapper = jdbcMapper;
     }
 
     @Override
     public Optional<User> findById(long id) {
         try {
-            return dbExecutor.executeSelect(getConnection(), "select id, name from user where id  = ?",
-                    id, rs -> {
-                        try {
-                            if (rs.next()) {
-                                return new User(rs.getLong("id"), rs.getString("name"));
-                            }
-                        } catch (SQLException e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                        return null;
-                    });
+            return jdbcMapper.findById(id, User.class);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -48,8 +35,7 @@ public class UserDaoJdbcExecutor implements UserDao {
     @Override
     public long insertUser(User user) {
         try {
-            return dbExecutor.executeInsert(getConnection(), "insert into user(name) values (?)",
-                    Collections.singletonList(user.getName()));
+            return jdbcMapper.insert(user);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new UserDaoException(e);
@@ -58,20 +44,16 @@ public class UserDaoJdbcExecutor implements UserDao {
 
     @Override
     public void updateUser(User user) {
-
+        jdbcMapper.update(user);
     }
 
     @Override
-    public void insertOrUpdate(User user) {
-
+    public long insertOrUpdate(User user) {
+        return jdbcMapper.insertOrUpdate(user);
     }
 
     @Override
     public SessionManager getSessionManager() {
         return sessionManager;
-    }
-
-    private Connection getConnection() {
-        return sessionManager.getCurrentSession().getConnection();
     }
 }
