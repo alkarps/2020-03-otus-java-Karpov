@@ -8,7 +8,7 @@ import my.alkarps.jdbc.dao.UserDaoJdbcExecutor;
 import my.alkarps.jdbc.executor.DbExecutor;
 import my.alkarps.jdbc.executor.DbExecutorImpl;
 import my.alkarps.jdbc.mapper.JdbcMapper;
-import my.alkarps.jdbc.mapper.JdbcMapperImpl;
+import my.alkarps.jdbc.mapper.impl.JdbcMapperEager;
 import my.alkarps.jdbc.sessionmanager.SessionManagerJdbc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,18 +27,25 @@ public class DbServiceDemo {
         var dataSource = new DataSourceH2();
         var sessionManager = new SessionManagerJdbc(dataSource);
         DbExecutor<User> dbExecutor = new DbExecutorImpl<>();
-        JdbcMapper<User> jdbcMapper = new JdbcMapperImpl<>(sessionManager, dbExecutor);
+        JdbcMapper<User> jdbcMapper = new JdbcMapperEager<>(sessionManager, dbExecutor, User.class);
         var userDao = new UserDaoJdbcExecutor(sessionManager, jdbcMapper);
         dbServiceUser = new DbServiceUserImpl(userDao);
     }
 
     @Test
     void demo() {
-        User newUser = new User(0, "dbServiceUser");
+        User newUser = createUser(0, "dbServiceUser");
         var expectedId = 1L;
         assertThat(dbServiceUser.saveUser(newUser)).isEqualTo(expectedId);
         assertThat(dbServiceUser.getUser(expectedId))
                 .isPresent().get()
                 .hasFieldOrPropertyWithValue("name", newUser.getName());
+    }
+
+    private User createUser(long id, String name) {
+        User user = new User();
+        user.setId(id);
+        user.setName(name);
+        return user;
     }
 }
