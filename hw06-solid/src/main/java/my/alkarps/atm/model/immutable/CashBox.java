@@ -2,8 +2,6 @@ package my.alkarps.atm.model.immutable;
 
 import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.*;
-import my.alkarps.atm.model.memento.BackupState;
-import my.alkarps.atm.model.memento.RestoreState;
 import my.alkarps.atm.model.operation.CashBoxOperation;
 import my.alkarps.atm.util.Utils;
 
@@ -23,7 +21,7 @@ import static my.alkarps.atm.util.Utils.throwExceptionIfTrue;
  * @author alkarps
  * create date 22.07.2020 14:35
  */
-public class CashBox implements CashBoxOperation, BackupState, RestoreState {
+public class CashBox implements CashBoxOperation {
     private static final String DELIMITER = ";";
     private List<Cassette> cassettes;
 

@@ -3,7 +3,6 @@ package my.alkarps.atm;
 import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.CashBoxIsEmptyException;
 import my.alkarps.atm.model.operation.CashBoxOperation;
-import my.alkarps.atm.model.operation.UserOperation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
 class AtmTest {
 
     private CashBoxOperation cashBoxOperation;
-    private UserOperation atm;
+    private Atm atm;
 
     @BeforeEach
     void setUp() {
@@ -85,6 +84,8 @@ class AtmTest {
         verify(cashBoxOperation).getCurrentAmount();
         verify(cashBoxOperation, never()).removeBanknotes(anyLong());
         verify(cashBoxOperation, never()).addBanknotes(any());
+        verify(cashBoxOperation, never()).backup();
+        verify(cashBoxOperation, never()).restore(any());
     }
 
     @Test
@@ -96,6 +97,8 @@ class AtmTest {
         verify(cashBoxOperation).addBanknotes(addBanknotes);
         verify(cashBoxOperation, never()).getCurrentAmount();
         verify(cashBoxOperation, never()).removeBanknotes(anyLong());
+        verify(cashBoxOperation, never()).backup();
+        verify(cashBoxOperation, never()).restore(any());
     }
 
     @Test
@@ -106,6 +109,34 @@ class AtmTest {
         assertThat(atm.removeBanknotes(amount)).isEqualTo(addBanknotes);
         verify(cashBoxOperation).isEmpty();
         verify(cashBoxOperation).removeBanknotes(amount);
+        verify(cashBoxOperation, never()).getCurrentAmount();
+        verify(cashBoxOperation, never()).addBanknotes(any());
+        verify(cashBoxOperation, never()).backup();
+        verify(cashBoxOperation, never()).restore(any());
+    }
+
+    @Test
+    void backup_whenCall_thenCallCashBox() {
+        String backup = "backup";
+        doReturn(backup).when(cashBoxOperation).backup();
+        assertThat(atm.backup()).isEqualTo(backup);
+        verify(cashBoxOperation).isEmpty();
+        verify(cashBoxOperation).backup();
+        verify(cashBoxOperation, never()).removeBanknotes(anyLong());
+        verify(cashBoxOperation, never()).getCurrentAmount();
+        verify(cashBoxOperation, never()).addBanknotes(any());
+        verify(cashBoxOperation, never()).restore(any());
+    }
+
+    @Test
+    void restore_whenCall_thenCallCashBox() {
+        String backup = "backup";
+        doNothing().when(cashBoxOperation).restore(any());
+        assertThatCode(()->atm.restore(backup)).doesNotThrowAnyException();
+        verify(cashBoxOperation).isEmpty();
+        verify(cashBoxOperation).restore(backup);
+        verify(cashBoxOperation, never()).backup();
+        verify(cashBoxOperation, never()).removeBanknotes(anyLong());
         verify(cashBoxOperation, never()).getCurrentAmount();
         verify(cashBoxOperation, never()).addBanknotes(any());
     }

@@ -3,6 +3,7 @@ package my.alkarps.atm;
 import my.alkarps.atm.model.Denomination;
 import my.alkarps.atm.model.exception.CashBoxIsEmptyException;
 import my.alkarps.atm.model.operation.CashBoxOperation;
+import my.alkarps.atm.model.operation.DepartmentOperation;
 import my.alkarps.atm.model.operation.UserOperation;
 
 import java.util.Map;
@@ -17,7 +18,7 @@ import static my.alkarps.atm.util.Utils.throwExceptionIfTrue;
  * @author alkarps
  * create date 22.07.2020 12:38
  */
-public class Atm implements UserOperation {
+public class Atm implements UserOperation, DepartmentOperation {
     private final CashBoxOperation cashBox;
 
     private Atm(CashBoxOperation cashBox) {
@@ -41,6 +42,16 @@ public class Atm implements UserOperation {
     @Override
     public Map<Denomination, Long> removeBanknotes(long amount) {
         return cashBox.removeBanknotes(amount);
+    }
+
+    @Override
+    public String backup() {
+        return cashBox.backup();
+    }
+
+    @Override
+    public void restore(String restoringState) {
+        cashBox.restore(restoringState);
     }
 
     public static class Builder {
