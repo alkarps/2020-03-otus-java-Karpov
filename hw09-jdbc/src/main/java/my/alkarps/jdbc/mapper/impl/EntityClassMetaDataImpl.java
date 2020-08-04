@@ -33,12 +33,16 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
         this.constructor = findDefaultConstructor(tClass);
         this.allFields = findAllField(tClass);
         this.fieldsWithoutId = allFields.stream()
-                .filter(field -> !field.isAnnotationPresent(Id.class))
+                .filter(field -> !haveIdAnnotation(field))
                 .collect(Collectors.toList());
         this.idField = allFields.stream()
-                .filter(field -> field.isAnnotationPresent(Id.class))
+                .filter(this::haveIdAnnotation)
                 .findAny()
                 .orElseThrow();
+    }
+
+    boolean haveIdAnnotation(Field field) {
+        return field.getDeclaredAnnotation(Id.class) != null;
     }
 
     void throwExceptionIfNull(Class<T> tClass) {

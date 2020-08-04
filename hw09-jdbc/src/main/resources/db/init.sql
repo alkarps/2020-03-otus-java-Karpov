@@ -1,1 +1,6 @@
-create table if not exists user(id long auto_increment, name varchar(50));
+create table if not exists user
+(
+    id   bigint(20) NOT NULL auto_increment primary key,
+    name varchar(255),
+    age int(3)
+);
