@@ -1,8 +1,8 @@
 package my.alkarps.jdbc.dao;
 
-import my.alkarps.core.dao.UserDao;
+import my.alkarps.core.dao.AccountDao;
 import my.alkarps.core.dao.UserDaoException;
-import my.alkarps.core.model.User;
+import my.alkarps.core.model.Account;
 import my.alkarps.core.sessionmanager.SessionManager;
 import my.alkarps.jdbc.mapper.JdbcMapper;
 import my.alkarps.jdbc.sessionmanager.SessionManagerJdbc;
@@ -11,21 +11,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class UserDaoJdbcExecutor implements UserDao {
-    private static final Logger logger = LoggerFactory.getLogger(UserDaoJdbcExecutor.class);
+public class AccountDaoJdbcMapper implements AccountDao {
+    private static final Logger logger = LoggerFactory.getLogger(AccountDaoJdbcMapper.class);
 
     private final SessionManagerJdbc sessionManager;
-    private final JdbcMapper<User> jdbcMapper;
+    private final JdbcMapper<Account> jdbcMapper;
 
-    public UserDaoJdbcExecutor(SessionManagerJdbc sessionManager, JdbcMapper<User> jdbcMapper) {
+    public AccountDaoJdbcMapper(SessionManagerJdbc sessionManager, JdbcMapper<Account> jdbcMapper) {
         this.sessionManager = sessionManager;
         this.jdbcMapper = jdbcMapper;
     }
 
     @Override
-    public Optional<User> findById(long id) {
+    public Optional<Account> findById(long id) {
         try {
-            return jdbcMapper.findById(id, User.class);
+            return jdbcMapper.findById(id, Account.class);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -33,9 +33,9 @@ public class UserDaoJdbcExecutor implements UserDao {
     }
 
     @Override
-    public long insertUser(User user) {
+    public long insertAccount(Account account) {
         try {
-            return jdbcMapper.insert(user);
+            return jdbcMapper.insert(account);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new UserDaoException(e);
@@ -43,13 +43,13 @@ public class UserDaoJdbcExecutor implements UserDao {
     }
 
     @Override
-    public void updateUser(User user) {
-        jdbcMapper.update(user);
+    public void updateAccount(Account account) {
+        jdbcMapper.update(account);
     }
 
     @Override
-    public long insertOrUpdate(User user) {
-        return jdbcMapper.insertOrUpdate(user);
+    public long insertOrUpdate(Account account) {
+        return jdbcMapper.insertOrUpdate(account);
     }
 
     @Override

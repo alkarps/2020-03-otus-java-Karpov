@@ -1,7 +1,6 @@
 package my.alkarps.jdbc.mapper.impl;
 
 import my.alkarps.core.dao.UserDaoException;
-import my.alkarps.jdbc.dao.UserDaoJdbcExecutor;
 import my.alkarps.jdbc.executor.DbExecutor;
 import my.alkarps.jdbc.mapper.EntityClassMetaData;
 import my.alkarps.jdbc.mapper.EntitySQLMetaData;
@@ -12,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Optional;
  * create date 01.08.2020 18:10
  */
 public class JdbcMapperEager<T> implements JdbcMapper<T> {
-    private static final Logger logger = LoggerFactory.getLogger(UserDaoJdbcExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(JdbcMapperEager.class);
 
     private final SessionManagerJdbc sessionManager;
     private final DbExecutor<T> dbExecutor;
@@ -91,18 +92,26 @@ public class JdbcMapperEager<T> implements JdbcMapper<T> {
 
     @Override
     public Optional<T> findById(long id, Class<T> clazz) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id is less or equal zero");
-        }
         try {
             return dbExecutor.executeSelect(getConnection(),
                     sqlMetaData.getSelectByIdSql(),
                     id,
-                    rs -> objectConverter.fillObjectForSelect(rs, metaData));
+                    this::selectOneObjectFromSelect);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         return Optional.empty();
+    }
+
+    private T selectOneObjectFromSelect(ResultSet rs) {
+        try {
+            if (rs.next()) {
+                return objectConverter.fillObjectForSelect(rs, metaData);
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     private Connection getConnection() {

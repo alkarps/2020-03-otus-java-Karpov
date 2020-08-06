@@ -8,6 +8,7 @@ import my.alkarps.jdbc.mapper.annotation.Id;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,7 +30,7 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     public EntityClassMetaDataImpl(Class<T> tClass) {
         throwExceptionIfNull(tClass);
-        this.name = tClass.getName();
+        this.name = tClass.getSimpleName();
         this.constructor = findDefaultConstructor(tClass);
         this.allFields = findAllField(tClass);
         this.fieldsWithoutId = allFields.stream()
@@ -41,31 +42,35 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
                 .orElseThrow();
     }
 
-    boolean haveIdAnnotation(Field field) {
+    private boolean haveIdAnnotation(Field field) {
         return field.getDeclaredAnnotation(Id.class) != null;
     }
 
-    void throwExceptionIfNull(Class<T> tClass) {
+    private void throwExceptionIfNull(Class<T> tClass) {
         if (tClass == null) {
             throw new IllegalArgumentException("Class not initialized");
         }
     }
 
-    Constructor<T> findDefaultConstructor(Class<T> tClass) {
-        return (Constructor<T>) Stream.of(tClass.getConstructors())
+    private Constructor<T> findDefaultConstructor(Class<T> tClass) {
+        return (Constructor<T>) Stream.of(tClass.getDeclaredConstructors())
                 .filter(constructor -> !constructor.isVarArgs())
+                .filter(constructor -> Modifier.isPublic(constructor.getModifiers()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Constructor didn't find"));
     }
 
-    List<Field> findAllField(Class<T> tClass) {
+    private List<Field> findAllField(Class<T> tClass) {
         return findAllFieldStream(tClass).collect(Collectors.toList());
     }
 
-    Stream<Field> findAllFieldStream(Class<?> tClass) {
-        if (tClass.getSuperclass().equals(Object.class)) {
+    private Stream<Field> findAllFieldStream(Class<?> tClass) {
+        if (tClass.equals(Object.class)) {
             return empty();
         }
-        return Stream.concat(Stream.of(tClass.getDeclaredFields()), findAllFieldStream(tClass.getSuperclass()));
+        return Stream.concat(
+                Stream.of(tClass.getDeclaredFields()),
+                findAllFieldStream(tClass.getSuperclass())
+        );
     }
 }

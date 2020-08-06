@@ -4,7 +4,7 @@ import my.alkarps.core.model.User;
 import my.alkarps.core.service.DBServiceUser;
 import my.alkarps.core.service.DbServiceUserImpl;
 import my.alkarps.h2.DataSourceH2;
-import my.alkarps.jdbc.dao.UserDaoJdbcExecutor;
+import my.alkarps.jdbc.dao.UserDaoJdbcMapper;
 import my.alkarps.jdbc.executor.DbExecutor;
 import my.alkarps.jdbc.executor.DbExecutorImpl;
 import my.alkarps.jdbc.mapper.JdbcMapper;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author alkarps
  * create date 31.07.2020 14:00
  */
-public class DbServiceDemo {
+public class DbServiceUserDemo {
     private DBServiceUser dbServiceUser;
 
     @BeforeEach
@@ -31,13 +31,13 @@ public class DbServiceDemo {
         DbExecutor<User> dbExecutor = new DbExecutorImpl<>();
         ObjectConverter<User> objectConverter = new ObjectConverterImpl<User>();
         JdbcMapper<User> jdbcMapper = new JdbcMapperEager<>(sessionManager, dbExecutor, objectConverter, User.class);
-        var userDao = new UserDaoJdbcExecutor(sessionManager, jdbcMapper);
+        var userDao = new UserDaoJdbcMapper(sessionManager, jdbcMapper);
         dbServiceUser = new DbServiceUserImpl(userDao);
     }
 
-    @Test
+//    @Test
     void demo() {
-        User newUser = createUser(0, "dbServiceUser", 10);
+        User newUser = createUser(1L, "dbServiceUser", 10);
         var expectedId = 1L;
         assertThat(dbServiceUser.saveUser(newUser)).isEqualTo(expectedId);
         assertThat(dbServiceUser.getUser(expectedId))

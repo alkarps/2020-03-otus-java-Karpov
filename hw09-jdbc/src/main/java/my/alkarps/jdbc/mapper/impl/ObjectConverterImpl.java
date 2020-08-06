@@ -1,7 +1,6 @@
 package my.alkarps.jdbc.mapper.impl;
 
 import my.alkarps.core.dao.UserDaoException;
-import my.alkarps.jdbc.dao.UserDaoJdbcExecutor;
 import my.alkarps.jdbc.mapper.EntityClassMetaData;
 import my.alkarps.jdbc.mapper.ObjectConverter;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ import java.util.stream.Stream;
  * create date 04.08.2020 7:55
  */
 public class ObjectConverterImpl<T> implements ObjectConverter<T> {
-    private static final Logger logger = LoggerFactory.getLogger(UserDaoJdbcExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(JdbcMapperEager.class);
 
     @Override
     public List<Object> extractParamsForInsert(T object, EntityClassMetaData<T> metaData) {
@@ -38,8 +37,10 @@ public class ObjectConverterImpl<T> implements ObjectConverter<T> {
         try {
             T object = metaData.getConstructor().newInstance();
             for (Field field : metaData.getAllFields()) {
+                field.setAccessible(true);
                 field.set(object, rs.getObject(field.getName()));
             }
+            return object;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -53,6 +54,7 @@ public class ObjectConverterImpl<T> implements ObjectConverter<T> {
 
     private Object extractValueFromField(Field field, T object) {
         try {
+            field.setAccessible(true);
             return field.get(object);
         } catch (IllegalAccessException e) {
             throw new UserDaoException(e);

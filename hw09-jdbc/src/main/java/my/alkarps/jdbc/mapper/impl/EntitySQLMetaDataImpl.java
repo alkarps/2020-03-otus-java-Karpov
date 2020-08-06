@@ -31,7 +31,7 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
                 params,
                 metaData.getName(),
                 metaData.getIdField().getName());
-        this.insertSql = String.format("insert into %s (%s) value (%s)",
+        this.insertSql = String.format("insert into %s (%s) values (%s)",
                 metaData.getName(),
                 params,
                 formInputPlaceHolder(metaData.getAllFields()));
